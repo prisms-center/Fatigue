@@ -14,6 +14,7 @@ import subprocess
 # Get name of directory that contains the PRISMS-Fatigue scripts
 DIR_LOC = os.path.dirname(os.path.abspath(__file__))
 
+# Templates for file names
 PRISMS_GRAIN_ID           = "grainID_%d.txt"
 PRISMS_ORIENTATION_ID     = "orientations_%d.txt"
 BAND_PLANE_NORMALS        = 'band_plane_normals_%d.txt'
@@ -22,6 +23,7 @@ BAND_SET_STATISTICS       = 'elements_per_band_%d.txt'
 CSV_DREAM3D               = "FeatureData_FakeMatl_%d.csv"
 EL_CENTROID_PICKLE_FORMAT = 'El_pos_%d.p' 
 
+# Define octahedral slip system plane normal directions for fcc material
 FCC_OCT_NORMALS = np.asarray([[1,1,1],
 [-1,1,1],
 [1,1,-1],
@@ -29,6 +31,7 @@ FCC_OCT_NORMALS = np.asarray([[1,1,1],
 
 
 def write_el_centroids_pickled(el_centroids, directory, num):
+    # Store the centroid of each element in pickle format
     out_f = os.path.join(directory, EL_CENTROID_PICKLE_FORMAT % num)
     h1 = open(out_f, 'wb')
     p.dump(el_centroids,h1)
@@ -40,7 +43,6 @@ def batch_dream3d(runner_path, pipeline_path, d3d_input_file, directory, shape, 
 
     Execute a set DREAM.3D pipeline over multiple instances. Create numbered output files to be read and used later.
     VTK and CSV data formats used as intermediate file outputs. CSV file format contains grain information (orientation, phase, etc.) while VTK relates voxel locations in space to the associated grain number.
-    Currently exposes limited modifications to the pipeline during this stage.
     Supports commonly used variation of number of elements, element size, as well as allowing periodicity or not.
     Supports older v4 and v5 pipeline formats as well as the newer v6 pipeline JSON format.
     Created microstructures will be numbered 0-num_runs-1
@@ -238,7 +240,7 @@ def batch_dream3d(runner_path, pipeline_path, d3d_input_file, directory, shape, 
             all_exist = os.path.exists(temp_csv) and os.path.exists(temp_vtk)
             attempt_count += 1
         if attempt_count >= max_attempt:
-            raise IOError("Could not construct Dream3D microstructures. Verify input statistics, pipeline and Dream3D version")
+            raise IOError("Could not construct DREAM.3D microstructures. Verify input statistics, pipeline and DREAM.3D version")
             
     for ii in range(num_runs):
         # Rename 'orientations.txt' filename 
@@ -254,6 +256,7 @@ def read_d3d_csv(directory, num):
     Read grain information from a DREAM.3D formatted csv file.
 
     Currently uses Phases, EquivalentDiameters, EulerAngles_0, EulerAngles_1, EulerAngles_2 as headings of interest.
+    This function can be easily modified to read in additional data.
 
     Parameters
     ----------
@@ -306,7 +309,7 @@ def read_ms_text_PRISMS(directory, num):
     Parameters
     ----------
     directory : str or unicode
-        File system path in which to read the text representation of ms
+        File system path from which to read the text representation of ms
     num : int
         Microstructure number to read from the supplied folder
 
@@ -324,11 +327,7 @@ def read_ms_text_PRISMS(directory, num):
     if not os.path.exists(elem_f_p):
         return ms_p
     with open(elem_f_p, 'r') as f:
-        # f.readline()
         line = f.readline()
-        # params = line.split(',')
-        # shape_p = map(int, params[:3])
-        # shape_p = [int(i) for i in params[:3]]
         shape_p = [int(s) for s in re.findall('\d+', line)][1:4]
         
     # Flip order because needs to be X, Y, Z and not Z, Y, X
@@ -336,7 +335,6 @@ def read_ms_text_PRISMS(directory, num):
         
     ms_p = np.genfromtxt(elem_f_p, dtype=int, skip_header=20, skip_footer=6)
     ms_p -= 1
-    # ms_p = np.reshape(ms_p, shape_p, order='F')
     
     # Need to sort element by X, then Y, then Z
     ms_p_1 = []
@@ -388,7 +386,6 @@ def overlay_ms(ms, nodes, element_centroids, size=None, offsets=None):
     shape = np.asarray(ms.shape, dtype = int)
     
 
-
     if offsets is None and size is not None:
         offsets = (max_ind - size) / 2.0
     elif size is None:
@@ -401,14 +398,12 @@ def overlay_ms(ms, nodes, element_centroids, size=None, offsets=None):
     dim_ind = dim_ind[mask_in_bounds]
     ind = tuple([dim_ind[:,i] for i in range(dim_ind.shape[1])])
     el_grains[mask_in_bounds] = ms[ind]
-    # raise IOError 
 
     num_grains = np.max(el_grains) + 1
     grain_el = {}
     for i in range(num_grains):
         grain_el[i] = np.argwhere(el_grains == i)
     if len(np.argwhere(el_grains == -1)) > 0:
-        # grain_el[-1] = np.argwhere(el_grains == -1)
         raise ValueError('Something went wrong... Check input sizes')
     return grain_el, el_grains
 
@@ -423,7 +418,7 @@ def make_nodes_elements(shape, size=None, mask=None):
     size : list, optional
         list of float for the physical size in mm along each axis
     mask : ndarray, optional
-        True where elements should be included (simulated in FEM model) False otherwise. mash.shape must match shape argument
+        True where elements should be included (simulated in FEM model) False otherwise. mesh.shape must match shape argument
 
     Returns
     -------
@@ -482,12 +477,36 @@ def get_centroids(nodes, elements):
     return centroids
 
 def sub_banding_scheme(directory, i, grain_sets, number_of_layers, elem_list, el_centroids_periodic, num_vox, num_planes):
-    # Iterate through each band to create unique sub-band regions
+  
+    """
+    Iterate through each band to create unique sub-band regions
+
+    Parameters
+    ----------
+    directory : str or unicode
+        Path to file of interest
+    i : int
+        Number of instantiation
+    grain_sets : list
+        List of elements in each grain
+    number_of_layers : ndarray
+        Number of layers for each slip plane in each grain
+    elem_list : dict
+        List of which element belongs to which slip plane band layer
+    el_centroids_periodic : ndarray
+        Array of element centroids accounting for microstructure periodicity (crucial for periodic microstructure FIP volume averaging!)
+    num_vox : int
+        Number of desired elements in each sub-band
+    num_planes : int
+        Number of unique slip planes in this material system
+    """    
     
     # Initialize arrays to store list of unique sub-band regions
     master_sub_band_dictionary = {}
     number_of_sub_bands = {}
     
+    # Specify whether each sub-band should be written to a text file
+    # This is useful for visualization purposes or to investigate the sub-band scheme, but may be set to False to prevent excessively large text files from being generated
     write_to_file = True 
     
     start_time = time.time()
@@ -497,17 +516,18 @@ def sub_banding_scheme(directory, i, grain_sets, number_of_layers, elem_list, el
     if write_to_file:
         sb_f = open(fname_sub, 'w')
     
-    # Create sub-band regions and write to .txt and .inp files
+    # Iterate through each grain
     for qq in range(len(grain_sets)):
         
         if qq % 50 == 0:
             print('Sub-banding grain: %d' % qq)
         
-        # For the four different band planes in Ti64 or Al7075
+        # Iterate throuh each slip plane
         for rr in range(num_planes):
         
-            # Iterate through the correct number of layers for the current grain and band plane
+            # Iterate through the correct number of layers for the current grain and slip plane band
             for ss in range(int(number_of_layers[qq,rr])):
+            
                 # Iterate through elements in band
                 m_el_list = []
                 
@@ -544,14 +564,14 @@ def sub_banding_scheme(directory, i, grain_sets, number_of_layers, elem_list, el
         sb_f.close()
     print('Sub-banding complete')
     
-    # Store sub-band averaging items to pickle file to be read by MainTi64.py for crack items
+    # Store sub-band averaging items to pickle file
     fname = os.path.join(directory,'sub_band_info_%d.p' % i)
     h1 = open(fname,'wb')
     # Change to 'protocol = 0' to read the '.p' file in python 2.x
-    p.dump([master_sub_band_dictionary,number_of_layers,number_of_sub_bands],h1, protocol=2)
+    p.dump([master_sub_band_dictionary,number_of_layers,number_of_sub_bands],h1, protocol = 2)
     h1.close()
     
-    print("Sub-band generation with .inp file: %2.2f seconds " % (time.time() - start_time))
+    print("Sub-band generation time: %2.2f seconds " % (time.time() - start_time))
 
 def calc_total_dist(el_pos,grain_pos):
     # Calculate distance between element and grain centroid (or technically any two 3d coordinates)
@@ -634,8 +654,9 @@ def write_set_index_elem_at_0(set, o_f, exclude=[]):
 
 def get_grain_centroids(el_centroids, el_grains, el_volumes):
     # Calculate centroid of each grain
-    # IMPORTANT: This obviously is unclear when microstructures are generated as fully periodic because a grain that exists at "two ends of the SVE" and is split by the SVE boudnary will have a grain centroid in the middle of the SVE!
-    # This is not an issue for non-periodic microstrucutres. This issue is resolved in the "kosher_centroids" function
+    # IMPORTANT: This obviously is unclear when microstructures are generated as fully periodic because a grain that exists at "two ends of the SVE" and is split by the SVE boundary will have a grain centroid in the middle of the SVE!
+    # This is not an issue for non-periodic microstructures. For periodic microstructures, this issue is resolved in the "kosher_centroids" function.
+    
     """ list of element centroids (num_elements), list of element to grain number mapping (num_elements), list of element volumes (num_elements) """
     if len(el_centroids) != len(el_grains) or len(el_grains) != len(el_volumes):
         raise ValueError("Length mismatch for element arrays")
@@ -654,8 +675,8 @@ def get_grain_centroids(el_centroids, el_grains, el_volumes):
     return centroids, volumes
 
 def write_band_sets_advanced_rev2(el_plane_layers, grain_el, directory, i):
+
     """
-    
     Advanced banding scheme to absorb the first layer into the second and the last into the second-to-last
     This will remove the majority of single element bands
     
@@ -669,11 +690,11 @@ def write_band_sets_advanced_rev2(el_plane_layers, grain_el, directory, i):
     
     start_time = time.time()
     
-    # The code below will write the # of elements in each band to a text file
+    # The code below will write the number of elements in each band to a text file
     fid = os.path.join(directory, BAND_SET_STATISTICS % i)
     f2 = open(fid, "w")    
 
-    o_f     = os.path.join(directory, BAND_SETS_FORMAT % i)
+    o_f    = os.path.join(directory, BAND_SETS_FORMAT % i)
     planes = el_plane_layers.shape[1]
     
     # Initialize array to store number of layers for each grain and slip plane
@@ -706,7 +727,7 @@ def write_band_sets_advanced_rev2(el_plane_layers, grain_el, directory, i):
                 
                 if (max_l - min_l > 2):
 
-                    # If there are more than four bands in this set, absord first band into second band and second-to-last band into last band
+                    # If there are more than four bands in this set, absorb first band into second band and second-to-last band into last band
                     
                     first_layer = non_empties[0]
                     second_layer = non_empties[1]
@@ -796,6 +817,8 @@ def write_set(set, o_f, exclude=[]):
 
 def list_elem_in_band(grain,plane,input_doc, kk):
 
+    # Deprecated and unused function, but included for user reference 
+    
     global layer_counter
     global number_of_total_bands
 
@@ -836,6 +859,8 @@ def list_elem_in_band(grain,plane,input_doc, kk):
 
 def get_num_layers(grain,plane,input_doc):
 
+    # Deprecated and unused function, but included for user reference 
+
     lookup = '*Elset, elset=grain_%s_plane_%s' % (grain, plane)
     number_of_layers = 0
     with open(input_doc) as fid:
@@ -844,7 +869,7 @@ def get_num_layers(grain,plane,input_doc):
                 number_of_layers += 1
     return number_of_layers	
 
-def kosher_centroids(el_cen,g_cen,size,grain_sets,el_grain,el_volumes):
+def kosher_centroids(el_cen, g_cen, size, grain_sets, el_grain, el_volumes):
     # Shift elements so that grain centroids are not incorrectly "in the middle" of the SVE for grains split by an SVE boundary/face
     
     # Added functionality to check whether a grain is flat (in the shape of a pancake)
@@ -1043,7 +1068,7 @@ def calc_hyp_grain_centroid(el_centroids, el_grains, el_volumes):
     return centroids, volumes
 
 def make_banded(el_centroids, el_grain, grain_centroids, orientations, planes, band_width, directory, i):
-    # Determine "bands" corresponding to slip planes based on each grain's crystallographic orientaiton
+    # Determine "bands" corresponding to slip planes based on each grain's crystallographic orientation
     # Addition below to create text file with band plane normals
     fid = os.path.join(directory, BAND_PLANE_NORMALS % i)
     f = open(fid, "w")
@@ -1096,27 +1121,27 @@ def convert_dict_lists(grain_el):
 
 def get_top_bottom_face_el(el_cen, FD, ms_list, jj):
     """
-    Function to determine which grains are split by a single non-periodic SVE face
+    Function to determine which grains are split by a single non-periodic SVE face/boundary
     
     Parameters
     ----------
-    el_cen   : array
+    el_cen : array
         Element centroids
-    face_dir : 0, 1 or 2
-        Direction which is set to non-periodic, corresponds to X, Y or Z. Typically, Y direction will be set to non-periodic in ONR simulations.
-    ms_list  : list 
-        Flattened list, depicts to which grain each element belongs.
-    jj       : integer
+    FD : 0, 1 or 2
+        Direction which is set to non-periodic, corresponds to X, Y, or Z. Typically, Y direction will be set to non-periodic in simulations.
+    ms_list : list 
+        Flattened list of which element belongs to each grain
+    jj : int
         Instantiation number
 
     Returns
     -------
-    split_grains : list
+    sorted_sg_temp : list
         Sorted ist of grains which are split by the non-periodic face
    
     """
     
-    # Determine location of top and bottom of direction of interest
+    # Determine location of top and bottom of non-periodic direction of interest
     el_cen_t = el_cen.transpose()
     maxx = el_cen_t[FD].max()
     minn = el_cen_t[FD].min()
@@ -1157,23 +1182,23 @@ def get_top_bottom_face_el(el_cen, FD, ms_list, jj):
 
 def elem_reindex_split_face_plane(el_in_grain, el_centroids, FD):
     """
-    Function to determine which elements will be indexed as a new grain due to splitting by non-periodic face (Y direction)
+    Function to determine which elements will be indexed as a new grain due to splitting by non-periodic face
     This function is evaluated ONCE per grain set
     
     Parameters
     ----------
-    el_in_grain   : array
+    el_in_grain : array
         Elements which belong to the grain of interest
-    el_centroids  :
+    el_centroids :
         Element centroids
-    FD            : 0, 1 or 2
-        Direction which is set to non-periodic, corresponds to X, Y or Z. Typically, Y direction will be set to non-periodic in simulations.
+    FD : 0, 1 or 2
+        Direction which is set to non-periodic, corresponds to X, Y, or Z. Typically, Y direction will be set to non-periodic in simulations.
 
     Returns
     -------
-    el_in_grain   : list
+    el_in_grain : list
         List of elements which are NOT to be indexed (subtract out el_renum)
-    el_renum      : list
+    el_renum_arrayed : list
         List of elements to be reindex as a new grain
     """
     el_cen_t = el_centroids.transpose()    
@@ -1184,7 +1209,7 @@ def elem_reindex_split_face_plane(el_in_grain, el_centroids, FD):
     
     plane_flag = True
     
-    # Quickly calculate element size
+    # Calculate element size
     elem_size = round(el_cen_t[0][-1] - el_cen_t[0][-2],8)
     
     # Get max position of the non-periodic Face, specified by FD
@@ -1234,7 +1259,7 @@ def store_grains(directory, grain_sets, num):
     h5.close()
  
 def store_bands(directory, elem_list_2, num):
-    # Store which elements belong to each grain for simpler FIP averaging over entire grains
+    # Store which elements belong to each band for simpler FIP averaging over entire bands
     fname5 = os.path.join(directory, 'element_band_sets_%d.p' % num)
     h5 = open(fname5,'wb')
     p.dump(elem_list_2, h5)
@@ -1244,10 +1269,10 @@ def print_params(directory, size, shape, face_bc, num_vox, num_planes, num_insta
     # Print current microstructure info to text file
     fname = os.path.join(directory, 'microstructure_parameters.txt')
     f = open(fname, 'w')
-    f.write('*** Parameters for the microstructures in this simulation folder ***\n')
+    f.write('*** Parameters for the microstructures in this simulation folder ***\n\n')
     f.write('Directory:  %s \n' % directory)
     f.write('DREAM.3D Input file:  %s \n' % os.path.basename(d3d_input_file))
-    f.write('Size in the X, Y, and Z:  %0.4f, %0.4f, %0.4f\n' % (size[0], size[1], size[2]))
+    f.write('Size (mm) in the X, Y, and Z:  %0.4f, %0.4f, %0.4f\n' % (size[0], size[1], size[2]))
     f.write('Shape in the X, Y, and Z:  %d, %d, %d\n' % (shape[0], shape[1], shape[2]))
     f.write('Elements per sub-band:  %d \n' % num_vox)
     f.write('Number of slip planes for banding:  %d \n' % num_planes)
@@ -1338,8 +1363,8 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, nu
             
             for kk in split_g:
                 # Iterate through all grains identified as split by the non-periodic SVE boundary
-                # Identify element at the top of the X, Y or Z-Face to be indexed as new grains, edit grain_sets by removing those elements
-                # ***** ASSUMES CUBIC SHAPE AND SIZE OF SIMULATIONS *****
+                # Identify element at the top of the X, Y, or Z-Face to be indexed as new grains, edit grain_sets by removing those elements
+                # ***** ASSUMES CUBIC SHAPE AND SIZE OF ELEMENTS *****
                 grain_sets[kk], el_renum = elem_reindex_split_face_plane(grain_sets[kk], el_centroids, free_surface[0])
                 
                 # Add new indexed grains to grain_sets array
@@ -1395,12 +1420,12 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, nu
 def main():
     # Run from command prompt 
     
-    # Directory where microstructure data should be instantiated and pre-processed
+    # Directory where microstructure data should be generated and pre-processed
     # This command creates a directory in the same directory as the "PRISMS-Fatigue" directory with python scripts and DREAM.3D files 
-    # directory = os.path.dirname(DIR_LOC) + '\\PRISMS-Fatigue_tutorial\\test_json'
+    directory = os.path.dirname(DIR_LOC) + '\\tutorial\\test_run_1'
     
     # Alternatively, the directory can be expressed as an absolute path as: 
-    directory = r'C:\Users\stopk\Documents\GitHub\demo'
+    # directory = r'C:\Users\stopk\Documents\GitHub\PRISMS-Fatigue\tutorial\test_run_1'
     
     # Location of DREAM.3D input file; should consist of only the "StatsGenerator" and "Write DREAM.3D Data File"
     # "StatsGenerator" inputs include grain size distribution, crystallographic texture, grain morphology, etc.
@@ -1423,7 +1448,7 @@ def main():
     # Size of microstructure instantiations in millimeters, in the X, Y, and Z directions, respectively.
     size  = np.asarray([.0725,.0725,.0725])
     
-    # Shape of microstructure instantiations, in the X, Y, and Z directions, respectively.
+    # Shape of microstructure instantiations (number of voxels/elements), in the X, Y, and Z directions, respectively.
     # IMPORTANT: at this point, only CUBIC voxel functionality supported
     shape = np.asarray([29,29,29])
     
@@ -1443,10 +1468,10 @@ def main():
     num_instantiations = 1
     
     # Specify whether DREAM.3D was previously executed on these files
-    # If set to false, the script will NOT generate new DREAM.3D microstructure and instead process the existing microstructures by reading the .csv and GrainID_#.txt files
+    # If set to False, the script will NOT generate new DREAM.3D microstructure(s) and instead process the existing microstructures by reading the .csv and GrainID_#.txt files
     # Reasons to set this to False:
-    #     1) Process the same set of microstrucutres with a different number of elemetns per sub-band regions, and store these in a separate folder
-    #     2) Generate a set of ['periodic', 'periodic', 'periodic'] microstructures, and then reprocesses them with one set of faces set to non-periodic, i.e., ['periodic', 'free', 'periodic']
+    #     1) Process the same set of microstructures with a different number of elements per sub-band, and store these in a separate folder. In this case, copy over the .csv and GrainID_#.txt files to a new folder and run this script.
+    #     2) Generate a set of ['periodic', 'periodic', 'periodic'] microstructures, and then reprocesses them with one set of faces set to non-periodic, i.e., ['periodic', 'free', 'periodic'], to study bulk vs. surface fatigue effects. 
     generate_new_microstructure_files = True
     
     # Call to the main function

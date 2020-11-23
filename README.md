@@ -1,30 +1,28 @@
 # PRISMS-Fatigue
 
 <B>Code repository:</B> https://github.com/prisms-center/Fatigue<br>
-<B>Code documentation:</B> https://github.com/prisms-center/plasticity/tree/master/docs <br>
+<B>Code documentation:</B> Coming soon! <br>
 <B>Tutorial Videos:</B> Coming soon! <br>
 
 <B>What is PRISMS-Fatigue?</B>
 
-  PRISMS-Fatigue is an open source fatigue analysis tool for polycrystalline metals and alloys. It uses PRISMS-Plasticity as the crystal plasticity finite elementh method (CPFEM) engine to simulate microstrucure response.  
+  PRISMS-Fatigue is an open source fatigue analysis tool for polycrystalline metals and alloys. It uses PRISMS-Plasticity as the crystal plasticity finite elementh method (CPFEM) engine to simulate microstructure response.  
   
   
-<B>Installation:</B> Please refer to the installation manual
+<B>Installation and documentation:</B> Please refer to the installation manual in the <B>docs</B> folder.
 
 <B>Python modules:</B>
 
-  There are five scripts written in Python: 
+  There are five scripts written in Python that users will execute:
   1. generate_microstructures.py
   2. calculate_FIPS.py
   3. volume_average_FIPs.py
   4. compile_and_plot_FIPs.py
   5. gamma_plane.py
 
+<B>Datasets</B>
 
-<B>Documentation:</B>
-
-  Detailed Installation Manual, User manual, and User defined material model manual are provided in /doc/ folder.
-
+The dataset associated with the PRISMS-Fatigue manuscript is available for download from Materials Commons at: https://doi.org/10.13011/m3-rcyy-gx13
 
 <B>Reference:</B>
 

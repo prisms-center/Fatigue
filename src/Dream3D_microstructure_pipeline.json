@@ -1,0 +1,712 @@
+{
+    "00": {
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Read DREAM.3D Data File",
+        "Filter_Name": "DataContainerReader",
+        "Filter_Uuid": "{043cbde5-3878-5718-958f-ae75714df0df}",
+        "InputFile": "C:\\Users\\stopk\\Documents\\GitHub\\PRISMS-Fatigue\\Al7075_cubic_texture_elongated_grains.dream3d",
+        "InputFileDataContainerArrayProxy": {
+            "Data Containers": [
+                {
+                    "Attribute Matricies": [
+                        {
+                            "Data Arrays": [
+                                {
+                                    "Component Dimensions": [
+                                        1
+                                    ],
+                                    "Flag": 2,
+                                    "Name": "CrystalStructures",
+                                    "Object Type": "DataArray<uint32_t>",
+                                    "Path": "/DataContainers/StatsGeneratorDataContainer/CellEnsembleData",
+                                    "Tuple Dimensions": [
+                                        3
+                                    ],
+                                    "Version": 2
+                                },
+                                {
+                                    "Component Dimensions": [
+                                        1
+                                    ],
+                                    "Flag": 2,
+                                    "Name": "PhaseName",
+                                    "Object Type": "StringDataArray",
+                                    "Path": "/DataContainers/StatsGeneratorDataContainer/CellEnsembleData",
+                                    "Tuple Dimensions": [
+                                        3
+                                    ],
+                                    "Version": 2
+                                },
+                                {
+                                    "Component Dimensions": [
+                                        1
+                                    ],
+                                    "Flag": 2,
+                                    "Name": "PhaseTypes",
+                                    "Object Type": "DataArray<uint32_t>",
+                                    "Path": "/DataContainers/StatsGeneratorDataContainer/CellEnsembleData",
+                                    "Tuple Dimensions": [
+                                        3
+                                    ],
+                                    "Version": 2
+                                },
+                                {
+                                    "Component Dimensions": [
+                                        1
+                                    ],
+                                    "Flag": 2,
+                                    "Name": "Statistics",
+                                    "Object Type": "Statistics",
+                                    "Path": "/DataContainers/StatsGeneratorDataContainer/CellEnsembleData",
+                                    "Tuple Dimensions": [
+                                        3
+                                    ],
+                                    "Version": 2
+                                }
+                            ],
+                            "Flag": 2,
+                            "Name": "CellEnsembleData",
+                            "Type": 11
+                        }
+                    ],
+                    "Flag": 2,
+                    "Name": "StatsGeneratorDataContainer",
+                    "Type": 999
+                }
+            ]
+        },
+        "OverwriteExistingDataContainers": 1
+    },
+    "01": {
+        "BoxDimensions": "X Range: 0 to 75 (Delta: 75)\nY Range: 0 to 75 (Delta: 75)\nZ Range: 0 to 75 (Delta: 75)",
+        "CellAttributeMatrixName": "CellData",
+        "DataContainerName": "SyntheticVolumeDataContainer",
+        "Dimensions": {
+            "x": 100,
+            "y": 100,
+            "z": 100
+        },
+        "EnsembleAttributeMatrixName": "CellEnsembleData",
+        "EstimateNumberOfFeatures": 0,
+        "EstimatedPrimaryFeatures": "",
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Initialize Synthetic Volume",
+        "Filter_Name": "InitializeSyntheticVolume",
+        "Filter_Uuid": "{c2ae366b-251f-5dbd-9d70-d790376c0c0d}",
+        "InputPhaseTypesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "PhaseTypes",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "InputStatsArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "Statistics",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "Origin": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "Resolution": {
+            "x": 0.75,
+            "y": 0.75,
+            "z": 0.75
+        }
+    },
+    "02": {
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Establish Shape Types",
+        "Filter_Name": "EstablishShapeTypes",
+        "Filter_Uuid": "{4edbbd35-a96b-5ff1-984a-153d733e2abb}",
+        "InputPhaseTypesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "PhaseTypes",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "ShapeTypeData": [
+            999,
+            0,
+            0
+        ],
+        "ShapeTypesArrayName": "ShapeTypes"
+    },
+    "03": {
+        "CellPhasesArrayName": "Phases",
+        "FeatureGeneration": 0,
+        "FeatureIdsArrayName": "FeatureIds",
+        "FeatureInputFile": "C:/Users/kstopka3",
+        "FeaturePhasesArrayName": "Phases",
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Pack Primary Phases",
+        "Filter_Name": "PackPrimaryPhases",
+        "Filter_Uuid": "{84305312-0d10-50ca-b89a-fda17a353cc9}",
+        "InputPhaseNamesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "PhaseName",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "InputPhaseTypesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "PhaseTypes",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "InputShapeTypesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "ShapeTypes",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "InputStatsArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "Statistics",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "MaskArrayPath": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": ""
+        },
+        "NewAttributeMatrixPath": {
+            "Attribute Matrix Name": "Synthetic Shape Parameters (Primary Phase)",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "NumFeaturesArrayName": "NumFeatures",
+        "OutputCellAttributeMatrixPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "OutputCellEnsembleAttributeMatrixName": "CellEnsembleData",
+        "OutputCellFeatureAttributeMatrixName": "CellFeatureData",
+        "PeriodicBoundaries": 1,
+        "SaveGeometricDescriptions": 0,
+        "SelectedAttributeMatrixPath": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": ""
+        },
+        "UseMask": 0
+    },
+    "04": {
+        "BoundaryCellsArrayName": "BoundaryCells",
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Find Boundary Cells (Image)",
+        "Filter_Name": "FindBoundaryCells",
+        "Filter_Uuid": "{8a1106d4-c67f-5e09-a02a-b2e9b99d031e}",
+        "IgnoreFeatureZero": 1,
+        "IncludeVolumeBoundary": 0
+    },
+    "05": {
+        "BoundaryCellsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "BoundaryCells",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "CellPhasesArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "Phases",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FeatureGeneration": 0,
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FeaturePhasesArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "Phases",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Insert Precipitate Phases",
+        "Filter_Name": "InsertPrecipitatePhases",
+        "Filter_Uuid": "{1e552e0c-53bb-5ae1-bd1c-c7a6590f9328}",
+        "InputPhaseTypesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "PhaseTypes",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "InputShapeTypesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "ShapeTypes",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "InputStatsArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "Statistics",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "MaskArrayPath": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": ""
+        },
+        "MatchRDF": 0,
+        "NewAttributeMatrixPath": {
+            "Attribute Matrix Name": "Synthetic Shape Parameters (Precipitate)",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "NumFeaturesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "NumFeatures",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "PeriodicBoundaries": 1,
+        "PrecipInputFile": "C:/Users/kstopka3",
+        "SaveGeometricDescriptions": 0,
+        "SelectedAttributeMatrixPath": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": ""
+        },
+        "UseMask": 0
+    },
+    "06": {
+        "BoundaryCellsArrayName": "BoundaryCells",
+        "CellFeatureAttributeMatrixPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Find Feature Neighbors",
+        "Filter_Name": "FindNeighbors",
+        "Filter_Uuid": "{97cf66f8-7a9b-5ec2-83eb-f8c4c8a17bac}",
+        "NeighborListArrayName": "NeighborList",
+        "NumNeighborsArrayName": "NumNeighbors",
+        "SharedSurfaceAreaListArrayName": "SharedSurfaceAreaList",
+        "StoreBoundaryCells": 0,
+        "StoreSurfaceFeatures": 1,
+        "SurfaceFeaturesArrayName": "SurfaceFeatures"
+    },
+    "07": {
+        "AvgQuatsArrayName": "AvgQuats",
+        "CellEulerAnglesArrayName": "EulerAngles",
+        "CrystalStructuresArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "CrystalStructures",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "FeatureEulerAnglesArrayName": "EulerAngles",
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FeaturePhasesArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "Phases",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Match Crystallography",
+        "Filter_Name": "MatchCrystallography",
+        "Filter_Uuid": "{7bfb6e4a-6075-56da-8006-b262d99dff30}",
+        "InputStatsArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "Statistics",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "MaxIterations": 100000,
+        "NeighborListArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "NeighborList",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "NumFeaturesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "NumFeatures",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "PhaseTypesArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "PhaseTypes",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "SharedSurfaceAreaListArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "SharedSurfaceAreaList",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "SurfaceFeaturesArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "SurfaceFeatures",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "VolumesArrayName": "Volumes"
+    },
+    "08": {
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Vtk Rectilinear Grid Exporter",
+        "Filter_Name": "VtkRectilinearGridWriter",
+        "Filter_Uuid": "{a043bd66-2681-5126-82e1-5fdc46694bf4}",
+        "OutputFile": "C:/Users/pkern3/Documents/Archived_Results/TNM/RVE_Convergence/BCC_Precip/100x100x100_75/ms_10.vtk",
+        "SelectedDataArrayPaths": [
+            {
+                "Attribute Matrix Name": "CellData",
+                "Data Array Name": "FeatureIds",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellData",
+                "Data Array Name": "EulerAngles",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellData",
+                "Data Array Name": "Phases",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            }
+        ],
+        "WriteBinaryFile": 0
+    },
+    "09": {
+        "CentroidsArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "Centroids",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Find Feature Centroids",
+        "Filter_Name": "FindFeatureCentroids",
+        "Filter_Uuid": "{6f8ca36f-2995-5bd3-8672-6b0b80d5b2ca}"
+    },
+    "10": {
+        "AspectRatiosArrayName": "AspectRatios",
+        "AxisEulerAnglesArrayName": "AxisEulerAngles",
+        "AxisLengthsArrayName": "AxisLengths",
+        "CellFeatureAttributeMatrixName": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "CentroidsArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "Centroids",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Find Feature Shapes",
+        "Filter_Name": "FindShapes",
+        "Filter_Uuid": "{3b0ababf-9c8d-538d-96af-e40775c4f0ab}",
+        "Omega3sArrayName": "Omega3s",
+        "VolumesArrayName": "Volumes_2"
+    },
+    "11": {
+        "EquivalentDiametersArrayName": "EquivalentDiameters",
+        "FeatureAttributeMatrixName": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Find Feature Sizes",
+        "Filter_Name": "FindSizes",
+        "Filter_Uuid": "{656f144c-a120-5c3b-bee5-06deab438588}",
+        "NumElementsArrayName": "NumElements",
+        "SaveElementSizes": 0,
+        "VolumesArrayName": "Volumes_3"
+    },
+    "12": {
+        "CellFeatureAttributeMatrixPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "DelimiterChoiceInt": 0,
+        "FeatureDataFile": "C:/Users/pkern3/Documents/Archived_Results/TNM/RVE_Convergence/BCC_Precip/100x100x100_75/ms_10.csv",
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Export Feature Data as CSV File",
+        "Filter_Name": "FeatureDataCSVWriter",
+        "Filter_Uuid": "{737b8d5a-8622-50f9-9a8a-bfdb57608891}",
+        "WriteNeighborListData": 1,
+        "WriteNumFeaturesLine": 1
+    },
+    "13": {
+        "CellEulerAnglesArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "EulerAngles",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "CellIPFColorsArrayName": "IPFColor",
+        "CellPhasesArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "Phases",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "CrystalStructuresArrayPath": {
+            "Attribute Matrix Name": "CellEnsembleData",
+            "Data Array Name": "CrystalStructures",
+            "Data Container Name": "StatsGeneratorDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Generate IPF Colors",
+        "Filter_Name": "GenerateIPFColors",
+        "Filter_Uuid": "{a50e6532-8075-5de5-ab63-945feb0de7f7}",
+        "GoodVoxelsArrayPath": {
+            "Attribute Matrix Name": "",
+            "Data Array Name": "",
+            "Data Container Name": ""
+        },
+        "ReferenceDir": {
+            "x": 0,
+            "y": 0,
+            "z": 1
+        },
+        "UseGoodVoxels": 0
+    },
+    "14": {
+        "AddSurfaceLayer": 0,
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Export Dx File (Feature Ids)",
+        "Filter_Name": "DxWriter",
+        "Filter_Uuid": "{9072e51c-632f-5ee5-bf6b-9a90bfac2fcf}",
+        "OutputFile": "C:/Users/kstopka3.dx"
+    },
+    "15": {
+        "FilterVersion": "6.5.138",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Convert Orientation Representation",
+        "Filter_Name": "ConvertOrientations",
+        "Filter_Uuid": "{e5629880-98c4-5656-82b8-c9fe2b9744de}",
+        "InputOrientationArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "EulerAngles",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "InputType": 0,
+        "OutputOrientationArrayName": "rvec",
+        "OutputType": 4
+    },
+    "16": {
+        "CalculatedArray": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "rvec_comp1",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Attribute Array Calculator",
+        "Filter_Name": "ArrayCalculator",
+        "Filter_Uuid": "{7ff0ebb3-7b0d-5ff7-b9d8-5147031aca10}",
+        "InfixEquation": "-rvec[0]*rvec[3]",
+        "ScalarType": 9,
+        "SelectedAttributeMatrix": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "Units": 1
+    },
+    "17": {
+        "CalculatedArray": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "rvec_comp2",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Attribute Array Calculator",
+        "Filter_Name": "ArrayCalculator",
+        "Filter_Uuid": "{7ff0ebb3-7b0d-5ff7-b9d8-5147031aca10}",
+        "InfixEquation": "-rvec[1]*rvec[3]",
+        "ScalarType": 9,
+        "SelectedAttributeMatrix": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "Units": 1
+    },
+    "18": {
+        "CalculatedArray": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "rvec_comp3",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Attribute Array Calculator",
+        "Filter_Name": "ArrayCalculator",
+        "Filter_Uuid": "{7ff0ebb3-7b0d-5ff7-b9d8-5147031aca10}",
+        "InfixEquation": "-rvec[2]*rvec[3]",
+        "ScalarType": 9,
+        "SelectedAttributeMatrix": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "Units": 1
+    },
+    "19": {
+        "CellFeatureAttributeMatrixName": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "CreatedArrayName": "featids",
+        "FeatureIdsArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        },
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Create Feature Array from Element Array",
+        "Filter_Name": "CreateFeatureArrayFromElementArray",
+        "Filter_Uuid": "{94438019-21bb-5b61-a7c3-66974b9a34dc}",
+        "SelectedCellArrayPath": {
+            "Attribute Matrix Name": "CellData",
+            "Data Array Name": "FeatureIds",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        }
+    },
+    "20": {
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Convert AttributeArray Data Type",
+        "Filter_Name": "ConvertData",
+        "Filter_Uuid": "{f4ba5fa4-bb5c-5dd1-9429-0dd86d0ecb37}",
+        "OutputArrayName": "featids_conv",
+        "ScalarType": 9,
+        "SelectedCellArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "featids",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        }
+    },
+    "21": {
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Convert AttributeArray Data Type",
+        "Filter_Name": "ConvertData",
+        "Filter_Uuid": "{f4ba5fa4-bb5c-5dd1-9429-0dd86d0ecb37}",
+        "OutputArrayName": "phases_conv",
+        "ScalarType": 9,
+        "SelectedCellArrayPath": {
+            "Attribute Matrix Name": "CellFeatureData",
+            "Data Array Name": "Phases",
+            "Data Container Name": "SyntheticVolumeDataContainer"
+        }
+    },
+    "22": {
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Combine Attribute Arrays",
+        "Filter_Name": "CombineAttributeArrays",
+        "Filter_Uuid": "{a6b50fb0-eb7c-5d9b-9691-825d6a4fe772}",
+        "MoveValues": 0,
+        "NormalizeData": 0,
+        "SelectedDataArrayPaths": [
+            {
+                "Attribute Matrix Name": "CellFeatureData",
+                "Data Array Name": "featids_conv",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellFeatureData",
+                "Data Array Name": "rvec_comp1",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellFeatureData",
+                "Data Array Name": "rvec_comp2",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellFeatureData",
+                "Data Array Name": "rvec_comp3",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            },
+            {
+                "Attribute Matrix Name": "CellFeatureData",
+                "Data Array Name": "phases_conv",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            }
+        ],
+        "StackedDataArrayName": "orientations"
+    },
+    "23": {
+        "Delimiter": 2,
+        "FileExtension": ".txt",
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Export ASCII Data",
+        "Filter_Name": "WriteASCIIData",
+        "Filter_Uuid": "{5fbf9204-2c6c-597b-856a-f4612adbac38}",
+        "MaxValPerLine": 1,
+        "OutputFilePath": "C:/Users/stopk",
+        "OutputPath": "C:/Users/kstopka3",
+        "OutputStyle": 0,
+        "SelectedDataArrayPaths": [
+            {
+                "Attribute Matrix Name": "CellFeatureData",
+                "Data Array Name": "orientations",
+                "Data Container Name": "SyntheticVolumeDataContainer"
+            }
+        ]
+    },
+    "24": {
+        "FilterVersion": "1.2.812",
+        "Filter_Enabled": true,
+        "Filter_Human_Label": "Write DREAM.3D Data File",
+        "Filter_Name": "DataContainerWriter",
+        "Filter_Uuid": "{3fcd4c43-9d75-5b86-aad4-4441bc914f37}",
+        "OutputFile": "C:/Users/kstopka3/Desktop/Untitled.dream3d",
+        "WriteTimeSeries": 0,
+        "WriteXdmfFile": 1
+    },
+    "PipelineBuilder": {
+        "Name": "Dream3D_microstructure_pipeline",
+        "Number_Filters": 25,
+        "Version": 6
+    }
+}
