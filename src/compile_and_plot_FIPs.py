@@ -19,25 +19,20 @@ import re
 # Get name of directory that contains the PRISMS-Fatigue scripts
 DIR_LOC = os.path.dirname(os.path.abspath(__file__))
 
-locats_Al7075_compare_BC_prisms =   [r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\cubic_equiaxed_periodic',
-                                     r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\cubic_equiaxed_free_surface',
-                                     r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\random_equiaxed_periodic',
-                                     r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\random_equiaxed_free_surface',
-                                     r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\rolled_equiaxed_periodic',
-                                     r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\rolled_equiaxed_free_surface']    
+locats_Al7075_compare_BC_prisms =   [os.path.dirname(DIR_LOC) + '\\tutorial\\Texture_Effect_Al7075T6\\cubic_equiaxed_periodic',
+                                     os.path.dirname(DIR_LOC) + '\\tutorial\\FreeSurface_Effect_Al7075T6\\cubic_equiaxed_free_surface',
+                                     os.path.dirname(DIR_LOC) + '\\tutorial\\Texture_Effect_Al7075T6\\random_equiaxed_periodic',
+                                     os.path.dirname(DIR_LOC) + '\\tutorial\\FreeSurface_Effect_Al7075T6\\random_equiaxed_free_surface',
+                                     os.path.dirname(DIR_LOC) + '\\tutorial\\Texture_Effect_Al7075T6\\rolled_equiaxed_periodic',
+                                     os.path.dirname(DIR_LOC) + '\\tutorial\\FreeSurface_Effect_Al7075T6\\rolled_equiaxed_free_surface']    
 
 
-locats_Al7075_compare_shape_prisms = [r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\cubic_equiaxed_periodic',
-                                      r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\cubic_elongated_periodic',
-                                      r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\random_equiaxed_periodic',
-                                      r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\random_elongated_periodic',
-                                      r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\rolled_equiaxed_periodic',
-                                      r'C:\Users\stopk\Documents\Research\PRISMS\May_large_scale_comparison\rolled_elongated_periodic']  
-
-
-
-locats_PRISMS_Fatigue_demo = [os.path.dirname(DIR_LOC) + '\\PRISMS-Fatigue_tutorial\\cubic_tutorial',
-                              os.path.dirname(DIR_LOC) + '\\PRISMS-Fatigue_tutorial\\random_tutorial']
+locats_Al7075_compare_shape_prisms = [os.path.dirname(DIR_LOC) + '\\tutorial\\Texture_Effect_Al7075T6\\cubic_equiaxed_periodic',
+                                      os.path.dirname(DIR_LOC) + '\\tutorial\\GrainMorphology_Effect_Al7075T6\\cubic_elongated_periodic',
+                                      os.path.dirname(DIR_LOC) + '\\tutorial\\Texture_Effect_Al7075T6\\random_equiaxed_periodic',
+                                      os.path.dirname(DIR_LOC) + '\\tutorial\\GrainMorphology_Effect_Al7075T6\\random_elongated_periodic',
+                                      os.path.dirname(DIR_LOC) + '\\tutorial\\Texture_Effect_Al7075T6\\rolled_equiaxed_periodic',
+                                      os.path.dirname(DIR_LOC) + '\\tutorial\\GrainMorphology_Effect_Al7075T6\\rolled_elongated_periodic']  
 
 
 pad_dist = 12
@@ -724,13 +719,13 @@ def main():
     # IMPORTANT: this directory should contain the locations specified at the top of this python script, NOT the individual folders with the instantiations!
     # This script goes through EACH ONE of the folders specified and extracts the relevant information for plotting purposes
     
-    directory = os.path.dirname(DIR_LOC) + '\\tutorial\\test_run_1'
+    directory = os.path.dirname(DIR_LOC) + '\\tutorial'
     
     # directory = r'C:\Users\stopk\Documents\GitHub\PRISMS-Fatigue\tutorial\test_run_1'
 
     # Specify which 'material' to plot, i.e., which combination of microstructure folders
     # Please see the top of the "plot_FIPS" function
-    mat = 'PRISMS_Fatigue_demo'
+    mat = 'prisms_compare_bcs'
     
     # Specify which FIP to import
     FIP_type = 'FS_FIP'

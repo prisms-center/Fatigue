@@ -164,9 +164,9 @@ def main():
 
     # Directory where PRISMS-Plasticity results .csv files are stored
     # In the case of gamma plane simulations, this should contain all the folders numbered 0 thru (number_of_folder - 1), each of which contains some number of instantiations simulated at some combination of strain state and magnitude
-    directory = os.path.dirname(DIR_LOC) + '\\tutorial\\test_run_1'
+    directory = os.path.dirname(DIR_LOC) + '\\tutorial\\MultiaxialFatigue_Al7075T6'
     
-    # directory = r'C:\Users\stopk\Documents\GitHub\PRISMS-Fatigue\tutorial\test_run_1'
+    # directory = r'C:\Users\stopk\Documents\GitHub\PRISMS-Fatigue\tutorial\Texture_Effect_Al7075T6\rolled_equiaxed_periodic'
     
     # Shape of microstructure instantiations (at this point, only CUBIC voxel functionality supported)
     # THIS MUST MATCH THE SHAPE FROM THE 'generate_microstructure.py' SCRIPT! 
@@ -174,7 +174,7 @@ def main():
 
     # Number of microstructure instantiations for which to calculate FIPs
     # THIS MUST MATCH THE SHAPE FROM THE 'generate_microstructure.py' SCRIPT! Otherwise, FIPs will not be computed for all instantiations!
-    num_instantiations = 1
+    num_instantiations = 10
    
     # Specify the FIP to be calculated; default is "FS_FIP"
     # The other FIP that can be calculated uses the plastic shear strain range on each slip system; FIP_type = 'plastic_shear_strain_range'
@@ -216,7 +216,7 @@ def main():
         for ii in range(num_instantiations):
             import_PRISMS_data(directory, shape, ii, FIP_type, num_slip_systems, FIP_params, gamma_plane_simulations)      
     
-    if vtk_visualize_FIPs:
+    if vtk_visualize_FIPs and not gamma_plane_simulations:
         for ii in range(num_instantiations):
             # Write FIPs to .vtk file for visualization
             append_FIPs_to_vtk(directory, shape, ii, FIP_type, num_slip_systems)
@@ -228,8 +228,3 @@ if __name__ == "__main__":
 # Stopka, K.S., McDowell, D.L. Microstructure-Sensitive Computational Estimates of Driving Forces for Surface Versus Subsurface Fatigue Crack Formation in Duplex Ti-6Al-4V and Al 7075-T6. JOM 72, 28–38 (2020). https://doi.org/10.1007/s11837-019-03804-1
 
 # Stopka and McDowell, “Microstructure-Sensitive Computational Multiaxial Fatigue of Al 7075-T6 and Duplex Ti-6Al-4V,” International Journal of Fatigue, 133 (2020) 105460.  https://doi.org/10.1016/j.ijfatigue.2019.105460
-
-
-
-
-

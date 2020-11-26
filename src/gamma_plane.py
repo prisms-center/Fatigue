@@ -7,6 +7,8 @@ import operator
 from sklearn.gaussian_process import GaussianProcessRegressor as GPR
 from sklearn.gaussian_process.kernels import Matern, RationalQuadratic, ConstantKernel
 
+DIR_LOC = os.path.dirname(os.path.abspath(__file__))
+
 # Please read associated publication that explains generation of the gamma plane before attempting to use this script!:
 # Stopka and McDowell, “Microstructure-Sensitive Computational Multiaxial Fatigue of Al 7075-T6 and Duplex Ti-6Al-4V,” 
 # International Journal of Fatigue, 133 (2020) 105460
@@ -515,7 +517,7 @@ def plot_gamma(directory, num_read, FIP_type, averaging_type, add_b_to_a = False
 def main(): 
     
     # Specify name of directory with simulation folders, each with the same X number of microstructures simulated to some combination of strain state and magnitude, and numbered 0 thru (number_of_folder - 1)
-    directory = r'C:\Users\stopk\Documents\Research\PRISMS\MULTIAXIAL_FILES\July15_2020_GammaPlaneCalculation'
+    directory = os.path.dirname(DIR_LOC) + '\\tutorial\\MultiaxialFatigue_Al7075T6'
 
     # Specify the number of FIPs to extract from each simulation folder
     num_FIPs_extract = 50
