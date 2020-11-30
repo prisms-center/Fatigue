@@ -258,12 +258,12 @@ def call_averaging(num, directory, FIP_type, averaging_type, gamma_plane_simulat
 def main():
 
     # Directory where microstructure FIP .p files are stored:
-    directory = os.path.dirname(DIR_LOC) + '\\tutorial\\test_run_1'
+    directory = os.path.dirname(DIR_LOC) + '\\tutorial\\MultiaxialFatigue_Al7075T6'
 
     # directory = r'C:\Users\stopk\Documents\GitHub\PRISMS-Fatigue\tutorial\test_run_1'
     
     # Number of microstructure instantiations in each folder for which to volume average FIPs
-    num_instantiations = 1
+    num_instantiations = 10
     
     # Specify the FIP to be volume averaged
     FIP_type = 'FS_FIP'
@@ -276,7 +276,7 @@ def main():
     
     # Number of multiaxial strain state and magnitude folders, i.e., strain states simulated
     # This is only required if calculating necessary files to generate multiaxial gamma plane
-    num_gamma_plane_folders = 2    
+    num_gamma_plane_folders = 1
     
     if gamma_plane_simulations:
         # Iterate through folders containing result files from multiaxial simulations

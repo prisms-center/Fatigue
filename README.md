@@ -2,7 +2,7 @@
 
 <B>Code repository:</B> https://github.com/prisms-center/Fatigue<br>
 <B>Code documentation:</B> Coming soon! <br>
-<B>Tutorial Videos:</B> Coming soon! <br>
+<B>Tutorial Videos:</B> https://www.youtube.com/playlist?list=PL4yBCojM4Swo3CvlA57syFrzk3p1mugP5 <br>
 
 <B>What is PRISMS-Fatigue?</B>
 
