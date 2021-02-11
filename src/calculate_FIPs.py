@@ -71,14 +71,22 @@ def import_PRISMS_data(directory, shape, num, FIP_type, num_slip_systems, FIP_pa
     fips_stored = np.zeros((shape[0] * shape[1] * shape[2],num_slip_systems))
     
     # Calculate FIPs
+    # Please append new FIP definitions to the end of this list
+    
     if FIP_type == 'FS_FIP':
         # Calculate the crystallographic version of the Fatemi-Socie FIP
         for ii in range(num_slip_systems):
             fips_stored[:,ii] = slip_values[ii + 4] * (1 + FIP_params[0] * (normal_stresses[ii + 16] / FIP_params[1]))
             
     elif FIP_type == 'plastic_shear_strain_range':
+        # FIP is the plastic shear strain range across the final loading cycle
         for ii in range(num_slip_systems):
             fips_stored[:,ii] = slip_values[ii + 4]
+            
+    elif FIP_type == 'normal_stress':
+        # FIP is the maximum normal stress to each slip plane at the final point of maximum applied tension
+        for ii in range(num_slip_systems):
+            fips_stored[:,ii] = normal_stresses['normal_stress_'+str(ii+1)]
           
     else:
         raise ValueError('Undefined FIP type specified! Please double check or formulate your FIP of choice! :)')

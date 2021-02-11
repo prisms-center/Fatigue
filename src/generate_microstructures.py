@@ -688,6 +688,11 @@ def write_band_sets_advanced_rev2(el_plane_layers, grain_el, directory, i):
     gpl  : contains which layers each element belongs to for the respective planes
 	"""
     
+    # If an edge band (i.e., the first or last band) contains too few elements as defined below, absorb this into the neighboring band
+    # Determined by taking cube root of average number of elements per grain as defined below
+    # ~100 elements per grain requires more than four elements per band      
+    absorb_threshold = np.cbrt(np.shape(el_plane_layers)[0] / np.shape(grain_el)[0])
+
     start_time = time.time()
     
     # The code below will write the number of elements in each band to a text file
@@ -722,27 +727,52 @@ def write_band_sets_advanced_rev2(el_plane_layers, grain_el, directory, i):
                     band_els = g_set[pl == l]
                     if len(band_els):
                         non_empties.append(l)
-                        
 
-                
+
                 if (max_l - min_l > 2):
 
-                    # If there are more than four bands in this set, absorb first band into second band and second-to-last band into last band
+                    # If there are more than four bands in this set, consider absorbing the first band into second band and the second-to-last band into the last band
                     
                     first_layer = non_empties[0]
                     second_layer = non_empties[1]
                     second_to_last_layer = non_empties[-2]
                     last_layer = non_empties[-1]
+                
+                else:
+                    # If grains are extremely coarse (only 1-10 elements per grain), avoid absorbing bands
+                    
+                    first_layer = []
+                    second_layer = []
+                    second_to_last_layer = []
+                    last_layer = []
 
                 
                 for l in range(max_l + 1):
                     band_els = g_set[pl == l]
+                    
+                    # If the first or last band has too few elements, absorb it into neighboring band
+                    if (l in [first_layer, second_layer]) and (len(g_set[pl == first_layer]) < absorb_threshold):
+                    
+                        absorb_first_outer_bands = True
+                        absorb_last_outer_bands  = False
+                        
+                    elif (l in [second_to_last_layer, last_layer]) and (len(g_set[pl == last_layer]) < absorb_threshold):
+                    
+                        absorb_first_outer_bands = False
+                        absorb_last_outer_bands  = True
+                    else:
+                    
+                        absorb_first_outer_bands = False
+                        absorb_last_outer_bands  = False
 
-                    if (max_l - min_l > 2) and (len(non_empties) > 3):
-                        if (l == first_layer):
+
+
+                    if (max_l - min_l > 2) and (len(non_empties) > 3) and (absorb_first_outer_bands or absorb_last_outer_bands):
+                        if (l == first_layer) and absorb_first_outer_bands:
                             # Absorb first band into second band
                             temp3 = band_els
-                        elif (l == second_layer):
+                            
+                        elif (l == second_layer) and absorb_first_outer_bands:
                             band_els = np.concatenate((band_els,temp3))
                             if len(band_els):
                                 # Write element numbers to abaqus input file
@@ -755,11 +785,12 @@ def write_band_sets_advanced_rev2(el_plane_layers, grain_el, directory, i):
                                 # Keep internal track of element list for sub-banding scheme
                                 elem_list[g,p,num_layers[g,p]] = [int(yy)+1 for yy in band_els]
                                 num_layers[g,p] += 1
-                                
-                        elif l == second_to_last_layer:
+                        
+                        elif (l == second_to_last_layer) and absorb_last_outer_bands:
                             # Absorb last band into second-to-last band
                             temp4 = band_els
-                        elif l == last_layer:
+                            
+                        elif (l == last_layer) and absorb_last_outer_bands:
                             band_els = np.concatenate((band_els,temp4))
                             if len(band_els):
                                 f.write("*Elset, elset=grain_%d_plane_%d_layer_%d\n" % (g + 1, p + 1, l + 1))
@@ -769,6 +800,7 @@ def write_band_sets_advanced_rev2(el_plane_layers, grain_el, directory, i):
                                 
                                 elem_list[g,p,num_layers[g,p]] = [int(yy)+1 for yy in band_els]
                                 num_layers[g,p] += 1
+                                
                         else:
                             # Leave all other bands unchanged
                             if len(band_els):
@@ -790,7 +822,8 @@ def write_band_sets_advanced_rev2(el_plane_layers, grain_el, directory, i):
                             
                             elem_list[g,p,num_layers[g,p]] = [int(yy)+1 for yy in band_els]
                             num_layers[g,p] += 1
-                           
+                          
+                          
         f.write("*")
 
     print('Amount of bands in total is %s' % np.sum(num_layers))
@@ -1258,15 +1291,70 @@ def store_grains(directory, grain_sets, num):
     p.dump(grain_sets, h5)
     h5.close()
  
-def store_bands(directory, elem_list_2, num):
-    # Store which elements belong to each band for simpler FIP averaging over entire bands
+def store_bands(directory, elem_list_2, num_layers, num):
+    # Store which elements belong to each grain for simpler FIP averaging over entire bands
     fname5 = os.path.join(directory, 'element_band_sets_%d.p' % num)
     h5 = open(fname5,'wb')
-    p.dump(elem_list_2, h5)
+    p.dump([elem_list_2, num_layers], h5)
     h5.close()
 
-def print_params(directory, size, shape, face_bc, num_vox, num_planes, num_instantiations, d3d_input_file):
+def append_bands_to_vtk(directory, elem_list_2, num_layers, grain_sets, shape, num_planes, num):
+    # For visualization purposes of the banding process, append the bands to the .vtk file
+
+    num_grains = len(grain_sets)
+    
+    # Initialize array to track to which band each element belongs
+    elem_bands = np.zeros((np.product(shape), 4), dtype = int)
+    
+    # Iterate over grains
+    for ii in range(num_grains):
+        
+        # Iterate over planes
+        for jj in range(num_planes):
+        
+            # Iterate through layers
+            for kk in range(num_layers[ii][jj]):
+        
+                for ll in elem_list_2[ii,jj,kk]:
+                
+                    elem_bands[ll-1].transpose()[jj] = kk
+
+
+    elem_bands_reshaped = np.reshape(elem_bands,(shape[0] * shape[1] * shape[2] * num_planes), order = 'C')
+
+    # Specify file names to visualize bands
+    Fname_vtk_loc = os.path.join(os.getcwd(), 'Output_FakeMatl_%d.vtk' % num)
+    Fname_vtk_new = os.path.join(os.getcwd(), 'Output_FakeMatl_%d_bands.vtk' % num)
+
+    # Create copy of original .vtk file in case something goes wrong!
+    shutil.copy(Fname_vtk_loc, Fname_vtk_new)
+
+    # Open and write to .vtk
+    f_vtk = open(Fname_vtk_new,'a')
+    f_vtk.write('SCALARS Bands float 4\n')
+    f_vtk.write('LOOKUP_TABLE default\n')
+
+    # Write to .vtk
+    counter = 0
+    for kk in elem_bands_reshaped:
+        f_vtk.write(' %g' % kk)
+        counter += 1 
+        if counter == 20:
+            f_vtk.write('\n')
+            counter = 0
+
+    f_vtk.close()
+
+def print_params(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, num_instantiations, d3d_input_file):
     # Print current microstructure info to text file
+    
+    # Create/go to desired directory
+    if os.path.exists(directory):
+        os.chdir(directory)
+    else:
+        os.makedirs(directory)
+        os.chdir(directory)
+    
     fname = os.path.join(directory, 'microstructure_parameters.txt')
     f = open(fname, 'w')
     f.write('*** Parameters for the microstructures in this simulation folder ***\n\n')
@@ -1275,19 +1363,20 @@ def print_params(directory, size, shape, face_bc, num_vox, num_planes, num_insta
     f.write('Size (mm) in the X, Y, and Z:  %0.4f, %0.4f, %0.4f\n' % (size[0], size[1], size[2]))
     f.write('Shape in the X, Y, and Z:  %d, %d, %d\n' % (shape[0], shape[1], shape[2]))
     f.write('Elements per sub-band:  %d \n' % num_vox)
+    f.write('Number of element band thickness:  %d \n' % band_thickness)
     f.write('Number of slip planes for banding:  %d \n' % num_planes)
     f.write('Face boundary conditions in X, Y, and Z:  %s, %s, %s \n' % (face_bc[0], face_bc[1], face_bc[2]))
     f.write('Number of microstructure instantiations generated:  %d' % num_instantiations)
     f.close()
 
-def gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, num_instantiations, generate_new_microstructure_files, d3d_input_file, d3d_pipeline_path, d3d_executable_path): 
+def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, create_sub_bands, num_instantiations, generate_new_microstructure_files, d3d_input_file, d3d_pipeline_path, d3d_executable_path): 
     # Main function
     
     # Create/go to desired directory
     if os.path.exists(directory):
         os.chdir(directory)
     else:
-        os.mkdir(directory)
+        os.makedirs(directory)
         os.chdir(directory)
 
     # Start timer
@@ -1311,9 +1400,12 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, nu
     # Set band width as one element thick; elements must be cubic in shape!
     if np.round(size[0] / shape[0], 12) == np.round(size[1] / shape[1], 12) == np.round(size[2] / shape[2], 12):
         # Need to round due to precision
-        band_width = np.round(size[0] / shape[0], 12)
+        band_width = band_thickness * np.round(size[0] / shape[0], 12)
+        
+        print('Band width of %g' % band_width)
+        
         # Quick check to make sure band_width makes sense
-        if np.round(band_width * shape[0],8) != size[0]:
+        if np.round(band_width * shape[0],8) / band_thickness != size[0]:
             raise IOError('Please fix rounding!')
     else:
         raise ValueError('Elements are not cubic in shape!')
@@ -1346,6 +1438,9 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, nu
         grain_sets, el_grain = overlay_ms(ms_list, nodes, el_centroids, size)
         if type(grain_sets) == type({}):
             grain_sets, el_els = convert_dict_lists(grain_sets)
+            
+        # Store which elements belong to each grain for simpler FIP averaging over entire grains
+        store_grains(directory, grain_sets, num)        
 
         # Determine if any surfaces are set to 'free'
         free_surface = [tt for tt, qq in enumerate(face_bc) if qq in 'free']
@@ -1382,7 +1477,7 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, nu
 
         # Calculate grain centroids
         grain_centroids, grain_volumes = get_grain_centroids(el_centroids, el_grain, el_volumes)
-
+        
         if (face_bc.count('free') == 1) or (face_bc[0] == face_bc[1] == face_bc[2] == 'periodic'):
             # Calculate "Kosher" grain centroids, which take into account DREAM.3D creating periodic microstructures where the same grain ID can exist on opposites of an SVE, SPLIT by the SVE boundary
             el_centroids_periodic, grain_centroids_periodic = kosher_centroids(el_centroids,grain_centroids,size,grain_sets,el_grain,el_volumes)
@@ -1392,9 +1487,13 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, nu
             
             # Write bands to text file
             num_layers, elem_list_2 = write_band_sets_advanced_rev2(el_plane_layers, grain_sets, directory, num)
+
+            # Store which elements belong to each band for FIP averaging over bands
+            store_bands(directory, elem_list_2, num_layers, num)
             
-            # Create sub-band regions and files necessary for FIP volume averaging
-            sub_banding_scheme(directory, num, grain_sets, num_layers, elem_list_2, el_centroids_periodic, num_vox, num_planes)
+            if create_sub_bands:
+                # Create sub-band regions and files necessary for FIP volume averaging
+                sub_banding_scheme(directory, num, grain_sets, num_layers, elem_list_2, el_centroids_periodic, num_vox, num_planes)
             
         elif (face_bc[0] == face_bc[1] == face_bc[2] == 'free'):    
             # Calculate layers of bands
@@ -1403,25 +1502,26 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, nu
             # Write bands to text file
             num_layers, elem_list_2 = write_band_sets_advanced_rev2(el_plane_layers, grain_sets, directory, num)
             
-            # Create sub-band regions and files necessary for FIP volume averaging
-            sub_banding_scheme(directory, num, grain_sets, num_layers, elem_list_2, el_centroids, num_vox, num_planes)
+            # Store which elements belong to each band for FIP averaging over bands
+            store_bands(directory, elem_list_2, num_layers, num)
+            
+            if create_sub_bands:
+                # Create sub-band regions and files necessary for FIP volume averaging
+                sub_banding_scheme(directory, num, grain_sets, num_layers, elem_list_2, el_centroids, num_vox, num_planes)
         else:
             raise ValueError('Please fix types of face boundary conditions!')
             
-        # Store which elements belong to each grain for simpler FIP averaging over entire grains
-        store_grains(directory, grain_sets, num)
+        append_bands_to_vtk(directory, elem_list_2, num_layers, grain_sets, shape, num_planes, num)
         
-        # Store which elements belong to each band for FIP averaging over bands
-        store_bands(directory, elem_list_2, num)
-    
-    
-    print("Total program: %2.2f seconds " % (time.time() - start_time))
+    print("Total time to generate microstructures: %2.2f seconds " % (time.time() - start_time))
 
 def main():
     # Run from command prompt 
     
+    
+    ''' Specify directories and paths '''
     # Directory where microstructure data should be generated and pre-processed
-    # This command creates a directory in the same directory as the "PRISMS-Fatigue" directory with python scripts and DREAM.3D files 
+    # This command creates a directory in the same location as the "PRISMS-Fatigue" directory with python scripts and DREAM.3D files 
     directory = os.path.dirname(DIR_LOC) + '\\tutorial\\test_run_1'
     
     # Alternatively, the directory can be expressed as an absolute path as: 
@@ -1434,6 +1534,10 @@ def main():
     
     # Once again, this may be specified using an absolute path as:
     # d3d_input_file = r'C:\Users\stopk\Documents\GitHub\PRISMS-Fatigue\Al7075_cubic_texture_equiaxed_grains.dream3d'
+
+    # Average grain size as determined in the "StatsGenerator" filter of the .dream3d file above
+    # Used for automated band and sub-band sizing as shown below but which can be overwritten by the user
+    avg_grain_size = 0.014 # millimeters
     
     # Location of DREAM.3D .json pipeline 
     # This can be modified by the user to include additional outputs
@@ -1445,40 +1549,73 @@ def main():
     # Location of DREAM.3D 'PipelineRunner.exe' file; this should be in the DREAM.3D program folder
     d3d_executable_path = r'C:\Users\stopk\Desktop\DREAM3D-6.5.141-Win64\PipelineRunner.exe'
     
+    
+    ''' Specify desired microstructure size and shape '''
     # Size of microstructure instantiations in millimeters, in the X, Y, and Z directions, respectively.
     size  = np.asarray([.0725,.0725,.0725])
     
     # Shape of microstructure instantiations (number of voxels/elements), in the X, Y, and Z directions, respectively.
-    # IMPORTANT: at this point, only CUBIC voxel functionality supported
-    shape = np.asarray([29,29,29])
-    
-    # Number of elements in each sub-band region for volume averaing
-    # Please see the references below for more information
-    num_vox = 8
-
-    # Number of crystallographic slip planes for FIP Volume averaging
-    # There are four slip planes in the Al7075-T6 material system (see references below)
-    num_planes = 4
-
-    # Boundary conditions, either "periodic" or "free surface", for X,Y,Z directions
-    # Three possible combinations: 1) all 'periodic', 2) all 'free', or 3) two 'periodic' + one 'free'
-    face_bc = ['periodic', 'periodic', 'periodic']
+    # IMPORTANT: at this point, only CUBIC voxel functionality supported even with a non-cubic microstructure
+    # I.e., size = [.05, .1, .025] and shape = [50, 100, 25] is acceptable
+    shape = np.asarray([29,29,29])  
     
     # Number of microstructure instantiations to generate using DREAM.3D
-    num_instantiations = 1
+    num_instantiations = 5
     
+    
+    ''' Specify details of banding and sub-banding process '''
+    # Specify the number of elements in each sub-band for volume averaging
+    # Please see the references below for more information
+    # WARNING!: If this is too low for very refined grains, this module will take a long time to run!
+    # This is because it attempts to determine all UNIQUE combinations of some number of neighboring elements
+    # NOTE: Aim for ~8-10% of the average grain volume as the num_vox
+    
+    # This line calculates num_vox to be 10% of the predicted average number of elements per grain
+    num_vox = np.around(np.prod(shape) / (np.prod(size) / ( (1/6) * np.pi * avg_grain_size ** 3  ) ) * 0.10).astype(int)
+    
+    # Comment out the above line and uncomment the line below to manually set the number of elements per sub-band
+    # num_vox = 8
+
+    # Specify the thickness of bands in terms of number of elements
+    # Ideally, this should result in approximately 6 bands for coarser grains (~100 elements per grain)
+    # NOTE: This should also be ~one or a few micrometers in thickness based on experimental observations of slip bands
+    # See reference below, Castelluccio and McDowell
+    
+    # This line calculates the band thickness IN MULTIPLES OF element thickness 
+    band_thickness = np.around( avg_grain_size / ( 6 * size[0]/shape[0]) ).astype(int)
+    
+    # Comment out the above line and uncomment the line below to manually set the band element thickness
+    # band_thickness = 2
+
+    # Number of crystallographic slip planes for FIP Volume averaging
+    # There are four slip planes in the Al 7075-T6 material system (see references below)
+    num_planes = 4
+    
+    # Specify whether bands in grains should be further assigned to unique sub-bands
+    # WARNING!: this is slow for a) microstructures with many grains, and 2) very fine grains, i.e., thousands of elements per grain
+    # NOTE: Microstructure(s) can be created with this intially set to False, and the "gen_microstructures" can be executed with the variable "generate_new_microstructure_files" set to False, so that the SAME microstructure(s) can undergo the sub-banding process at a later time.
+    create_sub_bands = True
+
+
+    ''' Specify boundary conditions '''
+    # Boundary conditions, either "periodic" or "free surface", for X,Y,Z directions
+    # Three possible combinations: 1) all 'periodic', 2) all 'free', or 3) two 'periodic' + one 'free'
+    face_bc = ['free', 'free', 'free']
+
     # Specify whether DREAM.3D was previously executed on these files
     # If set to False, the script will NOT generate new DREAM.3D microstructure(s) and instead process the existing microstructures by reading the .csv and GrainID_#.txt files
     # Reasons to set this to False:
     #     1) Process the same set of microstructures with a different number of elements per sub-band, and store these in a separate folder. In this case, copy over the .csv and GrainID_#.txt files to a new folder and run this script.
     #     2) Generate a set of ['periodic', 'periodic', 'periodic'] microstructures, and then reprocesses them with one set of faces set to non-periodic, i.e., ['periodic', 'free', 'periodic'], to study bulk vs. surface fatigue effects. 
+    # NOTE: If the variable is set to False, all that is needed in the folder is the DREAM.3D exported .csv and "grainID.txt" files for each microstructure
     generate_new_microstructure_files = True
+
+    # Print the parameters of this microstructure set to a text file
+    print_params(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, num_instantiations, d3d_input_file)
     
     # Call to the main function
-    gen_microstructures(directory, size, shape, face_bc, num_vox, num_planes, num_instantiations, generate_new_microstructure_files, d3d_input_file, d3d_pipeline_path, d3d_executable_path)
-    
-    # Print the parameters of this microstructure set to a text file
-    print_params(directory, size, shape, face_bc, num_vox, num_planes, num_instantiations, d3d_input_file)
+    gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, create_sub_bands, num_instantiations, generate_new_microstructure_files, d3d_input_file, d3d_pipeline_path, d3d_executable_path)
+
 
 
 if __name__ == "__main__":
@@ -1490,3 +1627,4 @@ if __name__ == "__main__":
 
 # Stopka, K.S., Gu, T., McDowell, D.L. Effects of algorithmic simulation parameters on the prediction of extreme value fatigue indicator parameters in duplex Ti-6Al-4V. International Journal of Fatigue, 141 (2020) 105865.  https://doi.org/10.1016/j.ijfatigue.2020.105865
 
+# Castelluccio, G.M., McDowell, D.L. Assessment of small fatigue crack growth driving forces in single crystals with and without slip bands. Int J Fract 176, 49–64 (2012). https://doi.org/10.1007/s10704-012-9726-y

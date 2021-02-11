@@ -17,7 +17,7 @@
 
   There are five scripts written in Python that users will execute:
   1. generate_microstructures.py
-  2. calculate_FIPS.py
+  2. calculate_FIPs.py
   3. volume_average_FIPs.py
   4. compile_and_plot_FIPs.py
   5. gamma_plane.py
