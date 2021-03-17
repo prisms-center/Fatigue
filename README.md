@@ -10,6 +10,8 @@
   
   This code is a collaborative effort between the University of Michigan's PRISMS Center and the David L. McDowell Research Group at the Georgia Institute of Technology (GT). GT's digital microstructure workflows developed in Python are integrated with PRISMS-Plasticity to investigate the fatigue response of polycrystalline metals and alloys.
   
+  Please reach out to Krzysztof (Kris) or Mohammadreza (Reza) with any questions, concerns, or comments using the contact information listed below.
+  
   
 <B>Installation and documentation:</B> Please refer to the installation manual in the <B>docs</B> folder.
 
@@ -28,7 +30,11 @@ The dataset associated with the PRISMS-Fatigue manuscript is available for downl
 
 <B>Reference:</B>
 
+  M. Yaghoobi, K. S. Stopka, A. Lakshmanan, V. Sundararaghavan, J. E. Allison, and D. L. McDowell, "Prisms-fatigue computational framework for fatigue analysis in polycrystalline metals and alloys," npj Computational Materials, 7, 38 (2021)
+  https://doi.org/10.1038/s41524-021-00506-8
+
   M. Yaghoobi, S. Ganesan, S. Sundar, A. Lakshmanan, S. Rudraraju, J.E. Allison, V. Sundararaghavan, “PRISMS-Plasticity: An open-source crystal plasticity finite element software” Computational Materials Science 169 (2019) 109078.
+  https://doi.org/10.1016/j.commatsci.2019.109078
 
 
 <B>License:</B>
