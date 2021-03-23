@@ -10,6 +10,7 @@ import time
 import shutil
 import fileinput
 import subprocess
+import pandas as pd
 
 # Get name of directory that contains the PRISMS-Fatigue scripts
 DIR_LOC = os.path.dirname(os.path.abspath(__file__))
@@ -1405,7 +1406,7 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness
         print('Band width of %g' % band_width)
         
         # Quick check to make sure band_width makes sense
-        if np.round(band_width * shape[0],8) / band_thickness != size[0]:
+        if np.round(band_width * shape[0],8) / band_thickness.astype(float) != size[0]:
             raise IOError('Please fix rounding!')
     else:
         raise ValueError('Elements are not cubic in shape!')
@@ -1537,6 +1538,7 @@ def main():
 
     # Average grain size as determined in the "StatsGenerator" filter of the .dream3d file above
     # Used for automated band and sub-band sizing as shown below but which can be overwritten by the user
+    # Therefore, this does NOT change the grain size generated and only affects the way in which microstructures are banded and sub-banded!
     avg_grain_size = 0.014 # millimeters
     
     # Location of DREAM.3D .json pipeline 
@@ -1571,7 +1573,7 @@ def main():
     # NOTE: Aim for ~8-10% of the average grain volume as the num_vox
     
     # This line calculates num_vox to be 10% of the predicted average number of elements per grain
-    num_vox = np.around(np.prod(shape) / (np.prod(size) / ( (1/6) * np.pi * avg_grain_size ** 3  ) ) * 0.10).astype(int)
+    num_vox = np.around(np.prod(shape) / (np.prod(size) / ( (1.0/6.0) * np.pi * avg_grain_size ** 3  ) ) * 0.10).astype(int)
     
     # Comment out the above line and uncomment the line below to manually set the number of elements per sub-band
     # num_vox = 8
@@ -1583,6 +1585,10 @@ def main():
     
     # This line calculates the band thickness IN MULTIPLES OF element thickness 
     band_thickness = np.around( avg_grain_size / ( 6 * size[0]/shape[0]) ).astype(int)
+    if band_thickness < 1:
+        # The microstructure is relatively coarse so need to override band thickness to 1 element in width
+        print('Setting band thickness to 1 element in width')
+        band_thickness = 1
     
     # Comment out the above line and uncomment the line below to manually set the band element thickness
     # band_thickness = 2
