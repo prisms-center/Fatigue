@@ -10,6 +10,7 @@ import time
 import shutil
 import fileinput
 import subprocess
+import pandas as pd
 
 # Get name of directory that contains the PRISMS-Fatigue scripts
 DIR_LOC = os.path.dirname(os.path.abspath(__file__))
@@ -1572,6 +1573,7 @@ def main():
     
     # This line calculates num_vox to be 10% of the predicted average number of elements per grain
     num_vox = np.around(np.prod(shape) / (np.prod(size) / ( (1/6) * np.pi * avg_grain_size ** 3  ) ) * 0.10).astype(int)
+    num_vox = np.around(np.prod(shape) / (np.prod(size) / ( (1.0/6.0) * np.pi * avg_grain_size ** 3  ) ) * 0.10).astype(int)
     
     # Comment out the above line and uncomment the line below to manually set the number of elements per sub-band
     # num_vox = 8
