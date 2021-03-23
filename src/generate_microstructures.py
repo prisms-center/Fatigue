@@ -1585,6 +1585,10 @@ def main():
     
     # This line calculates the band thickness IN MULTIPLES OF element thickness 
     band_thickness = np.around( avg_grain_size / ( 6 * size[0]/shape[0]) ).astype(int)
+    if band_thickness < 1:
+        # The microstructure is relatively coarse so need to override band thickness to 1 element in width
+        print('Setting band thickness to 1 element in width')
+        band_thickness = 1
     
     # Comment out the above line and uncomment the line below to manually set the band element thickness
     # band_thickness = 2
