@@ -52,35 +52,48 @@ def Al7075_sub_band_averaging(element_fip, FIP_type, number_of_layers, number_of
     # Sort sub-band averaged FIPs in descending order
     sorted_fips = sorted(Avg_FIP.items(), key=operator.itemgetter(1))
     sorted_fips.reverse()
+
+
+    # WARNING!: This section of code may run excessively long if very large microstructures are analyzed! If the file below is not of interest, please set the following variable to False
     
-    # Write the FIPs to .csv file for easy examination
-    fid = os.path.join(directory, "sub_band_averaged_%s_%d.csv" % (FIP_type,num))
-    f = open(fid, "w")
-    f.write('SubBandAveragedFipValue' + ',' + 'Grain#' + ',' + 'SS#' + ',' + 'Layer#' + ',' +'Sub Band#' + ',' + '#ofElementsInSubBand' + '\n')    
+    # This is because the "if" section below writes every single sub band averaged FIP to a .csv file
+    # This results in an acceptable analysis time and file size for smaller microstructure instantiations (i.e., 30 x 30 x 30 voxels and hundreds of grains)
+    # However, this becomes extremely slow for very large microstructures. Therefore, it is sufficient to store the sub band averaged FIPs into the ".p" pickle format (as performed in the lines above) to be then read by other python scripts
     
-    # Print sorted sub-band averaged FIPs to .csv file
-    for yy in range(len(sorted_fips)):
-        grain_temp    = sorted_fips[yy][0][0]
-        slip_sys_temp = sorted_fips[yy][0][1]
-        layer_temp    = sorted_fips[yy][0][2]
-        sub_band_temp = sorted_fips[yy][0][3]
-        FIP_temp      = sorted_fips[yy][1]
+    store_sub_band_info = True
+    
+    if store_sub_band_info:
+    
+        # Write the FIPs to .csv file for easy examination
+        fid = os.path.join(directory, "sub_band_averaged_%s_%d.csv" % (FIP_type,num))
+        f = open(fid, "w")
+        f.write('SubBandAveragedFipValue' + ',' + 'Grain#' + ',' + 'SS#' + ',' + 'Layer#' + ',' +'Sub Band#' + ',' + '#ofElementsInSubBand' + '\n')    
         
-        slip_system_formation_plane = int((slip_sys_temp/3))
-        num_elements_in_subband = len(master_sub_band_dictionary[grain_temp,slip_system_formation_plane,layer_temp,sub_band_temp])
+        # Print sorted sub-band averaged FIPs to .csv file
+        for yy in range(len(sorted_fips)):
+            grain_temp    = sorted_fips[yy][0][0]
+            slip_sys_temp = sorted_fips[yy][0][1]
+            layer_temp    = sorted_fips[yy][0][2]
+            sub_band_temp = sorted_fips[yy][0][3]
+            FIP_temp      = sorted_fips[yy][1]
+            
+            slip_system_formation_plane = int((slip_sys_temp/3))
+            num_elements_in_subband = len(master_sub_band_dictionary[grain_temp,slip_system_formation_plane,layer_temp,sub_band_temp])
+            
+            # Index information at 1 for csv file
+            f.write(str(FIP_temp) + "," + str(grain_temp+1) + "," + str(slip_sys_temp+1) + "," + str(layer_temp+1) + "," + str(sub_band_temp+1) + "," + str(num_elements_in_subband) + "\n")
+        f.close()
         
-        # Index information at 1 for csv file
-        f.write(str(FIP_temp) + "," + str(grain_temp+1) + "," + str(slip_sys_temp+1) + "," + str(layer_temp+1) + "," + str(sub_band_temp+1) + "," + str(num_elements_in_subband) + "\n")
-    f.close()
-    
     
     # Store the single highest FIP per sub-band
     
     # WARNING!: This section of code may run excessively long if very large microstructures are analyzed! If the file below is not of interest, please set the following variable to False
     
-    store_sub_band_info = True
+    # This is once again because very large microstructures with many grains result in a slow analysis, because the code below has to check which FIPs from which grains have been considered for analysis
     
-    if store_sub_band_info:
+    store_sub_band_info_max_per_grain = True
+    
+    if store_sub_band_info_max_per_grain:
         fid2 = os.path.join(directory, "sub_band_averaged_highest_per_grain_%s_%d.csv" % (FIP_type,num))
         f1 = open(fid2, "w")
         f1.write('SubBandAveragedFipValue' + ',' + 'Grain#' + ',' + 'SS#' + ',' + 'Layer#' + ',' +'Sub Band#' + ',' + '#ofElementsInSubBand' + '\n')  
@@ -226,7 +239,7 @@ def Al7075_grain_averaging(element_fip, FIP_type, grain_sets, num, directory):
     # Write the FIPs to .csv file for easy examination
     np.savetxt(os.path.join(directory, 'grain_averaged_%s_%d.csv' % (FIP_type,num)), grain_averaged_fips, delimiter=',')
 
-    print('For instantiation', num, ', the largest grain averaged FIP is:', np.max(grain_averaged_fips), 'in grain', np.argmax(grain_averaged_fips) + 1, '(indexed at 1).') 
+    print('For instantiation', num,', the largest grain averaged FIP is:', np.max(grain_averaged_fips), 'in grain', np.argmax(grain_averaged_fips) + 1, '(indexed at 1).') 
 
 def call_averaging(num, directory, FIP_type, averaging_type, gamma_plane_simulations):
 
@@ -242,6 +255,7 @@ def call_averaging(num, directory, FIP_type, averaging_type, gamma_plane_simulat
         # Read in sub-band averaging information
         
         if gamma_plane_simulations:
+        
             # If volume averaging the same instantiations for gamma plane, then read info from different folder
             fname1 = os.path.join(os.path.split(directory)[0], 'instantiation_data')
             fname = os.path.join(fname1, 'sub_band_info_%d.p' % num)
@@ -266,15 +280,12 @@ def call_averaging(num, directory, FIP_type, averaging_type, gamma_plane_simulat
         # Read in band averaging information; need number of layers
         
         if gamma_plane_simulations:
-
-            # Read in which elements belong to each band
+            fname1 = os.path.join(os.path.split(directory)[0], 'instantiation_data')
             fname = os.path.join(fname1, 'element_band_sets_%d.p' % num)
             h1 = open(fname,'rb')
             band_sets, number_of_layers = p.load(h1)
             h1.close()
         else:
-  
-            # Read in which elements belong to each band
             fname = os.path.join(directory, 'element_band_sets_%d.p' % num)
             h1 = open(fname,'rb')
             band_sets, number_of_layers = p.load(h1)
