@@ -30,6 +30,12 @@ FCC_OCT_NORMALS = np.asarray([[1,1,1],
 [1,1,-1],
 [1,-1,1]]) / (3**0.5)
 
+# HCP Planes for the single basal and three prismatic planes 
+HCP_BASAL_PRISMATIC_NORMALS = np.asarray([[0,0,1],
+[np.sqrt(3)/2,0.5,0],
+[-np.sqrt(3)/2,0.5,0],
+[0,-1,0]])
+
 
 def write_el_centroids_pickled(el_centroids, directory, num):
     # Store the centroid of each element in pickle format
@@ -1406,7 +1412,7 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness
         print('Band width of %g' % band_width)
         
         # Quick check to make sure band_width makes sense
-        if np.round(band_width * shape[0],8) / band_thickness.astype(float) != size[0]:
+        if np.round(band_width * shape[0],8) / band_thickness != size[0]:
             raise IOError('Please fix rounding!')
     else:
         raise ValueError('Elements are not cubic in shape!')
@@ -1439,9 +1445,6 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness
         grain_sets, el_grain = overlay_ms(ms_list, nodes, el_centroids, size)
         if type(grain_sets) == type({}):
             grain_sets, el_els = convert_dict_lists(grain_sets)
-            
-        # Store which elements belong to each grain for simpler FIP averaging over entire grains
-        store_grains(directory, grain_sets, num)        
 
         # Determine if any surfaces are set to 'free'
         free_surface = [tt for tt, qq in enumerate(face_bc) if qq in 'free']
@@ -1476,6 +1479,9 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness
                 # Edit orientation array
                 orientations = np.vstack((orientations,orientations[kk]))
 
+        # Store which elements belong to each grain for simpler FIP averaging over entire grains
+        store_grains(directory, grain_sets, num)     
+        
         # Calculate grain centroids
         grain_centroids, grain_volumes = get_grain_centroids(el_centroids, el_grain, el_volumes)
         
@@ -1559,7 +1565,7 @@ def main():
     # Shape of microstructure instantiations (number of voxels/elements), in the X, Y, and Z directions, respectively.
     # IMPORTANT: at this point, only CUBIC voxel functionality supported even with a non-cubic microstructure
     # I.e., size = [.05, .1, .025] and shape = [50, 100, 25] is acceptable
-    shape = np.asarray([29,29,29])  
+    shape = np.asarray([29,29,29])
     
     # Number of microstructure instantiations to generate using DREAM.3D
     num_instantiations = 5
@@ -1584,14 +1590,15 @@ def main():
     # See reference below, Castelluccio and McDowell
     
     # This line calculates the band thickness IN MULTIPLES OF element thickness 
-    band_thickness = np.around( avg_grain_size / ( 6 * size[0]/shape[0]) ).astype(int)
+    band_thickness = np.around( avg_grain_size / ( 6 * size[0]/shape[0]) )
     if band_thickness < 1:
         # The microstructure is relatively coarse so need to override band thickness to 1 element in width
         print('Setting band thickness to 1 element in width')
-        band_thickness = 1
+        band_thickness = 1.0
     
     # Comment out the above line and uncomment the line below to manually set the band element thickness
-    # band_thickness = 2
+    # Set as float for subsequent calculations
+    # band_thickness = 3.0
 
     # Number of crystallographic slip planes for FIP Volume averaging
     # There are four slip planes in the Al 7075-T6 material system (see references below)
