@@ -401,8 +401,9 @@ def grain_size_paper_max_slip():
     plt.savefig( os.path.join(store_dirr, 'rolled_Z_all_%d_bins_v3_ZOOM' % n_bins) )
     plt.close()   
 
+def main():
+    grain_size_paper_max_slip()
 
 
 if __name__ == "__main__":
-    grain_size_paper_max_slip()
-
+    main()

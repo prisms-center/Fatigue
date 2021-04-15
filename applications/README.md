@@ -2,7 +2,7 @@
 
   The folders here contain scripts that demonstrate the capabilities of PRISMS-Fatigue with different applications. Each application is typically associated with a manuscript as described below.
     
-### Effects of boundary conditions
+## Effects of boundary conditions
   
   <B>Associated manuscript title:</B> Effects of boundary conditions on microstructure-sensitive fatigue crystal plasticity analysis
   
@@ -10,7 +10,7 @@
   
   
 
-### Effects of grain shape
+## Effects of grain shape
   
   <B>Associated manuscript title:</B> Crystal plasticity finite element modeling of grain shape and size effects
   
