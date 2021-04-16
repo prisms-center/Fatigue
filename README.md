@@ -44,7 +44,9 @@ The data set associated with the PRISMS-Fatigue manuscript is available for down
   GNU Lesser General Public License (LGPL). Please see the file
   LICENSE for details.
 
-<B>Forum:</B> For the time being, please direct question to the PRISMS-Plasticity users forum
+<B>Forum:</B> 
+
+	For the time being, please direct question to the PRISMS-Plasticity users forum
 
    + https://groups.google.com/forum/#!forum/prisms-cpfe-users
 

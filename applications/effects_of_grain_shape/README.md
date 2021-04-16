@@ -1,6 +1,6 @@
 # Effects of grain shape
 
-  These scripts are used to reproduce the analysis and plots for the manuscript entitled <B> Crystal plasticity finite element modeling of grain shape and size effects </B>. This work incorporates grain size and grain shape into a crystal plasticity constitutive model using the PRISMS-Plasticity open-source solver.
+  These scripts are used to reproduce the analysis and plots for the manuscript entitled <B> Crystal plasticity finite element modeling of grain shape and size effects</B>. This work incorporates the effects of grain size and grain shape into a crystal plasticity constitutive model using the PRISMS-Plasticity open-source solver.
   
   Users should first download the data set associated with this manuscript from Materials Commons at https://doi.org/10.13011/m3-f90v-gs55. Three folders entitled "Calibration", "Fatigue", and "Hall-Petch" each contain a "ResultsFiles" and a "SimulationFiles" folder. The two scripts available here should be placed in the "ResultsFiles" directory in the "Fatigue" directory, i.e., "Fatigue\ResultsFiles". This folder contains four folders entitled "NoGrainSize", "WithGrainSize", "plasticity_ellipsoid_Microstructures", and "plots". These two scripts will directly read data from these four folders.
   
