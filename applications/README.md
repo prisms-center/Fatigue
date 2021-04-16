@@ -4,14 +4,14 @@
     
 ## Effects of boundary conditions
   
-  <B>Associated manuscript title:</B> Effects of boundary conditions on microstructure-sensitive fatigue crystal plasticity analysis
+  <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. Effects of boundary conditions on microstructure-sensitive fatigue crystal plasticity analysis. (in review).
   
-  <B>Materials Commons link to data set:</B> https://doi.org/10.13011/m3-mhgc-ec71
+  <B>Materials Commons Data set:</B> https://doi.org/10.13011/m3-mhgc-ec71
   
   
 
-## Effects of grain shape
+## Effects of grain size and grain shape
   
-  <B>Associated manuscript title:</B> Crystal plasticity finite element modeling of grain shape and size effects
+  <B>Reference:</B> A. Lakshmanan, M. Yaghoobi, K. S. Stopka, and V. Sundararaghavan. Crystal plasticity finite element modeling of grain shape and size effects. (in review).
   
-  <B>Materials Commons link to data set:</B>
+  <B>Materials Commons Data set:</B>
