@@ -32,7 +32,7 @@ def grain_size_paper_max_slip():
                          os.path.join(DIR_LOC, r'WithGrainSize\Cube_texture\gs_cubic_AR_6')]
     
     # Define directory to store plots
-    store_dirr = r'G:\Grain_size_paper\plots'
+    store_dirr = os.path.join(DIR_LOC, r'plots')
     
     # Create directory to store plots if it does not exist
     if os.path.exists(store_dirr):
@@ -402,6 +402,7 @@ def grain_size_paper_max_slip():
     plt.close()   
 
 def main():
+    # Plot histograms of maximum plastic shear strain range
     grain_size_paper_max_slip()
 
 
