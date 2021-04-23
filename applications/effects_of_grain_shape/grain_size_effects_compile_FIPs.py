@@ -59,6 +59,55 @@ font_size = 8
 tick_widths = 1
 tick_lens = 5
 
+def read_d3d_csv(directory, num):
+    """
+    Read grain information from a DREAM.3D formatted csv file.
+
+    Currently uses Phases, EquivalentDiameters, EulerAngles_0, EulerAngles_1, EulerAngles_2 as headings of interest.
+    This function can be easily modified to read in additional data.
+
+    Parameters
+    ----------
+    filename : str or unicode
+        Path to file of interest
+
+    Returns
+    -------
+    phases : ndarray
+        List of phases for each grain
+    diameters : ndarray
+        List of equivalent diameters for each grain
+    orientations : ndarray
+        nx3 array of Bunge Euler angles for each grain
+
+    """
+    filename =  os.path.join(directory, 'FeatureData_FakeMatl_%d.csv' % num)
+    
+    stat_names = ['Phases', 'EquivalentDiameters', 'EulerAngles_0',
+                  'EulerAngles_1', 'EulerAngles_2']
+    f = open(filename, 'r')
+    num_grains = int(f.readline().split(',')[0])
+    header = f.readline()
+    data = header.split(',')
+    remap = [0]*len(stat_names)
+    for i, key in enumerate(stat_names):
+        for j, header_name in enumerate(data):
+            if header_name.find(key)!= -1:
+                remap[i] = j
+    statistics = np.zeros((0, len(remap)))
+    for i in range(int(num_grains)):
+        line = f.readline()
+        temp = np.asarray(line.split(","))
+        temp = temp[remap]
+        temp = np.reshape(temp, (1, len(temp)))
+        statistics = np.concatenate((statistics, temp), axis=0)
+    f.close()
+    statistics = statistics.astype(float)
+    phases = statistics[:, 0] - 1
+    phases = phases.astype(int)
+    diameters = statistics[:, 1]
+    orientations = statistics[:, 2:5]
+    return phases, diameters, orientations
 
 def read_FIPs_from_single_SVE(directory):
     # Additional unused function to read in the largest sub-band averaged FIPs (one per grain) from a single microstructure instantiation
@@ -73,8 +122,8 @@ def read_FIPs_from_single_SVE(directory):
     
     # Specify how many of the highest FIPs per grain should be imported. Typically, only the few hundred highest FIPs are of interest
     # This significantly speeds up this algorithm!
-    # IMPORTANT: If th is is set below the number of grains in the instantiation, the function will fail! 
-    get_num_FIPs = 150
+    # IMPORTANT: If this is set below the number of grains in the instantiation, the function will fail! 
+    get_num_FIPs = 250
     
     # Initialize list of just FIPs
     new_all_fs_fips = []
@@ -116,7 +165,14 @@ def read_FIPs_from_single_SVE(directory):
             # print(mm)
         nn += 1     
     
+    # Store more detailed information of grains'
+    fname = 'detailed_fip_info.p'
+    h1 = open(fname, 'wb')
+    p.dump([new_all_fs_fips, all_data, added_g], h1)
+    h1.close()
+    
     os.chdir(tmp_dir)
+    
     return new_all_fs_fips
     # return new_all_fs_fips, all_data, added_g 
 def read_pickled_SBA_FIPs(directory, num_fips_extract, FIP_type, averaging_type):
@@ -469,13 +525,87 @@ def plot_gumbels(data, plt_type, cfm, sfm, mat, plot_col, names = None, hollow_a
         plt.legend(loc='lower right', fontsize='7', ncol=plot_col, framealpha=1)
     plt.tight_layout()
     return fig, r_squared_values, slope_values, y_intercept_values, highest_FIP
+
+def plot_fips_vs_d():
+    # Plot FIPs vs grain size
+    # Mainly of interest for the random texture and AR 1
+    random_no_gs = os.path.join(DIR_LOC, r'NoGrainSize\Random_texture\no_gs_random_AR_1')
+    random_gs    = os.path.join(DIR_LOC, r'WithGrainSize\Random_texture\gs_random_AR_1')
     
+    # Read in data for random texture with no grain size effects
+    fname_no_gs = os.path.join(DIR_LOC, r'NoGrainSize\Random_texture\no_gs_random_AR_1\detailed_fip_info.p')
+    h1 = open(fname_no_gs, 'rb')
+    no_gs_data = p.load(h1)
+    h1.close()
+    
+    # Read in data for random texture with grain size effects
+    fname_no_gs = os.path.join(DIR_LOC, r'WithGrainSize\Random_texture\gs_random_AR_1\detailed_fip_info.p')
+    h1 = open(fname_no_gs, 'rb')
+    gs_data = p.load(h1)
+    h1.close()
+    
+    # Read in grain size data for the random textured microstructure with AR 1
+    inst_data_loc = os.path.join(DIR_LOC, r'plasticity_ellipsoid_Microstructures\Random_texture\Different_aspect_ratios\AR_1')
+    inst_data = pd.read_csv(inst_data_loc)
+    
+    # GRAIN DATA AS READ IN FROM .P FILES ARE INDEXED AT 0!
+    phases, diameters, orientations = read_d3d_csv(inst_data_loc, 0)
+    
+    gs_grain_numbers    = [x + 1 for x in gs_data[2]]
+    no_gs_grain_numbers = [x + 1 for x in no_gs_data[2]]
+    
+    gs_data_grain_diameters    = diameters[gs_grain_numbers]
+    no_gs_data_grain_diameters = diameters[no_gs_grain_numbers]
+    
+    
+    # Plot this number of top FIPs
+    top_num_FIPs = 50
+    
+    
+    # Plot FIPs vs grain diameter
+    fig = plt.figure(facecolor="white", figsize=(6, 4), dpi=1200)
+    
+    plt.scatter(gs_data_grain_diameters[0:top_num_FIPs],    gs_data[0][0:top_num_FIPs],    color = 'b', zorder = 2, s = np.sqrt(np.arange(1,top_num_FIPs)), label = 'GS')
+    plt.scatter(no_gs_data_grain_diameters[0:top_num_FIPs], no_gs_data[0][0:top_num_FIPs], color = 'r', zorder = 2, s = np.sqrt(np.arange(1,top_num_FIPs)), label = 'No GS', marker = '^')
+
+    plt.legend(framealpha = 1)
+    
+    # plt.show()
+    plt.ylabel('FIP')   
+    plt.grid(True, zorder = 1)
+    plt.xlabel('Grain diameter [microns]')
+    plt.ticklabel_format(style = 'sci', axis='y', scilimits=(0,0), useMathText = True)
+    plt.tight_layout()
+    plt.savefig(os.path.join(DIR_LOC, r'plots/fips_vs_grain_size_gs_model_%d' % top_num_FIPs))
+    plt.close()    
+    
+    
+
+    # Plot histograms of grain size
+    n_bins = 50
+    
+    fig = plt.figure(facecolor="white", figsize=(6, 4), dpi=1200)
+    
+    n,x1,_ = plt.hist(diameters, bins = n_bins, histtype = 'step', color = 'white')
+    n1 = n.astype(int)
+    bin_centers = 0.5*(x1[1:]+x1[:-1])
+    plt.plot(bin_centers, n1, color = 'b', linestyle = '-')    
+
+    # plt.show()
+    # plt.ylabel('Num')   
+    plt.grid(True)
+    # plt.xlabel('Grain size [microns]')     
+    # plt.ticklabel_format(style = 'sci', axis='x', scilimits=(0,0), useMathText = True)    
+    plt.tight_layout()
+    plt.savefig(os.path.join(DIR_LOC, r'plots/grain_diameters'))
+    plt.close()     
+   
 def main(n_fip_plot = 100, plt_type = 'gumbel'):
     
     # Specify folder which contains all of the simulation batch folders
     # This script goes through EACH ONE of the folders specified and extracts the relevant information for plotting purposes
     
-    directory = r'G:\Grain_size_paper\plots'
+    directory = os.path.join(DIR_LOC, r'plots')
 
     if os.path.exists(directory):
         os.chdir(directory)
