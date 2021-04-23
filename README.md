@@ -46,7 +46,7 @@ The data set associated with the PRISMS-Fatigue manuscript is available for down
 
 <B>Forum:</B> 
 
-	For the time being, please direct question to the PRISMS-Plasticity users forum
+For the time being, please direct question to the PRISMS-Plasticity users forum
 
    + https://groups.google.com/forum/#!forum/prisms-cpfe-users
 
