@@ -283,7 +283,7 @@ def read_d3d_csv(directory, num):
     filename =  os.path.join(directory, CSV_DREAM3D % num)
     
     stat_names = ['Phases', 'EquivalentDiameters', 'EulerAngles_0',
-                  'EulerAngles_1', 'EulerAngles_2']
+                  'EulerAngles_1', 'EulerAngles_2', 'SurfaceFeatures']
     f = open(filename, 'r')
     num_grains = int(f.readline().split(',')[0])
     header = f.readline()
@@ -306,7 +306,8 @@ def read_d3d_csv(directory, num):
     phases = phases.astype(int)
     diameters = statistics[:, 1]
     orientations = statistics[:, 2:5]
-    return phases, diameters, orientations
+    surfaceFeatures = statistics[:, 5].astype(int)
+    return phases, diameters, orientations, surfaceFeatures
 
 def read_ms_text_PRISMS(directory, num):
 
@@ -526,7 +527,7 @@ def sub_banding_scheme(directory, i, grain_sets, number_of_layers, elem_list, el
     # Iterate through each grain
     for qq in range(len(grain_sets)):
         
-        if qq % 50 == 0:
+        if qq % 100 == 0:
             print('Sub-banding grain: %d' % qq)
         
         # Iterate throuh each slip plane
@@ -586,8 +587,9 @@ def calc_total_dist(el_pos,grain_pos):
     # grain_pos : (x,y,z) of grain centroid
     #
     # Can also be used to determine distance between two elements!
-    if len(el_pos) != len(grain_pos):
-        raise ValueError("Array length mismatch")
+    # if len(el_pos) != len(grain_pos):
+    #     raise ValueError("Array length mismatch")
+    
     dist_temp = (el_pos[0]-grain_pos[0])**2 + (el_pos[1]-grain_pos[1])**2 + (el_pos[2]-grain_pos[2])**2
     dist = np.sqrt(dist_temp)
     return dist
@@ -909,12 +911,14 @@ def get_num_layers(grain,plane,input_doc):
                 number_of_layers += 1
     return number_of_layers	
 
-def kosher_centroids(el_cen, g_cen, size, grain_sets, el_grain, el_volumes):
+def kosher_centroids(el_cen, g_cen, size, grain_sets, el_grain, el_volumes, surfaceFeatures):
     # Shift elements so that grain centroids are not incorrectly "in the middle" of the SVE for grains split by an SVE boundary/face
     
     # Added functionality to check whether a grain is flat (in the shape of a pancake)
     # If so, do not attempt to move elements in this direction as it will just oscillate back and forth and crash!
-
+    
+    start_time = time.time()
+    
     # Calculate realistic grain centroids by enforcing element periodicity
     a = size[0]
     b = size[1]
@@ -928,12 +932,21 @@ def kosher_centroids(el_cen, g_cen, size, grain_sets, el_grain, el_volumes):
     hyp_cen = el_cen
     print('Calculate realistic grain centroids')
     print('')
-    for k in range(len(g_cen)):
+    
+    # Determine which grains are "surface features" from DREAM.3D .csv file, i.e., grains that have at least one element that touches the surface
+    # Only these grains are considered in the algorithm below to determine a realistic grain centroid
+    # NOTE: this is independent of whether the microstructures are generated in DREAM.3D with fully periodic boundary conditions, i.e., ANY grain with at least one element at the surface of the microstructure is considered a "surface feature"
+    
+    surface_grains = np.arange(len(g_cen))[np.where(surfaceFeatures == 1)]
+    
+    # for k in range(len(g_cen)):
+    for iterr, k in enumerate(surface_grains):
         singl_elem_z = False
         singl_elem_y = False
         singl_elem_x = False
-        if k % 50 == 0:
-            print('Working on grain %d' % k)
+        if iterr % 50 == 0:
+            # print('Working on grain %d' % k)
+            print('Finished %0.1f%% grains' % (100 * iterr/len(surface_grains)))
         contt = True
         iter_count = 0
         while contt:
@@ -1061,7 +1074,10 @@ def kosher_centroids(el_cen, g_cen, size, grain_sets, el_grain, el_volumes):
             if (x_flag == True) and (y_flag == True) and (z_flag == True):
                 contt = False
                 #print 'iterations for grain %d: %d' % (k+1, iter_count)
-    # return element and grain centroids which reflect periodicity!   
+                
+    print("Time to determine kosher element centroids: %2.2f seconds " % (time.time() - start_time))
+
+    # return element and grain centroids which reflect periodicity!
     return el_cen, g_cen
 
 def calc_directional_max_dist_elem_grain(el_cen,g_cen,g_set_elem,dir):
@@ -1376,7 +1392,7 @@ def print_params(directory, size, shape, face_bc, num_vox, band_thickness, num_p
     f.write('Number of microstructure instantiations generated:  %d' % num_instantiations)
     f.close()
 
-def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, create_sub_bands, num_instantiations, generate_new_microstructure_files, d3d_input_file, d3d_pipeline_path, d3d_executable_path): 
+def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, create_sub_bands, num_instantiations, generate_new_microstructure_files, compute_kosher_grain_centroids, d3d_input_file, d3d_pipeline_path, d3d_executable_path): 
     # Main function
     
     # Create/go to desired directory
@@ -1439,7 +1455,7 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness
         ms_list = read_ms_text_PRISMS(directory, num)
 
         # Read in phases, diameters, and orientations from D
-        phases, diameters, orientations = read_d3d_csv(directory, num)
+        phases, diameters, orientations, surfaceFeatures = read_d3d_csv(directory, num)
 
         # Overlay information on mesh
         grain_sets, el_grain = overlay_ms(ms_list, nodes, el_centroids, size)
@@ -1475,6 +1491,9 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness
 
                 # Edit phase array; assign phase of new grain to be that of the grain it is split from
                 phases = np.append(phases, phases[kk])
+                
+                # Edit surfaceFeatures array; assign surfaceFeatures of new grain to be that of the grain it is split from
+                surfaceFeatures = np.append(surfaceFeatures, surfaceFeatures[kk])
             
                 # Edit orientation array
                 orientations = np.vstack((orientations,orientations[kk]))
@@ -1487,20 +1506,37 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness
         
         if (face_bc.count('free') == 1) or (face_bc[0] == face_bc[1] == face_bc[2] == 'periodic'):
             # Calculate "Kosher" grain centroids, which take into account DREAM.3D creating periodic microstructures where the same grain ID can exist on opposites of an SVE, SPLIT by the SVE boundary
-            el_centroids_periodic, grain_centroids_periodic = kosher_centroids(el_centroids,grain_centroids,size,grain_sets,el_grain,el_volumes)
-        
-            # Calculate layers of bands
-            el_plane_layers = make_banded(el_centroids_periodic, el_grain, grain_centroids_periodic, orientations, planes, band_width, directory, num)
             
-            # Write bands to text file
-            num_layers, elem_list_2 = write_band_sets_advanced_rev2(el_plane_layers, grain_sets, directory, num)
+            if compute_kosher_grain_centroids:
+                el_centroids_periodic, grain_centroids_periodic = kosher_centroids(el_centroids,grain_centroids,size,grain_sets,el_grain,el_volumes,surfaceFeatures)
+            
+                # Calculate layers of bands
+                el_plane_layers = make_banded(el_centroids_periodic, el_grain, grain_centroids_periodic, orientations, planes, band_width, directory, num)
+                
+                # Write bands to text file
+                num_layers, elem_list_2 = write_band_sets_advanced_rev2(el_plane_layers, grain_sets, directory, num)
 
-            # Store which elements belong to each band for FIP averaging over bands
-            store_bands(directory, elem_list_2, num_layers, num)
+                # Store which elements belong to each band for FIP averaging over bands
+                store_bands(directory, elem_list_2, num_layers, num)
+                
+                if create_sub_bands:
+                    # Create sub-band regions and files necessary for FIP volume averaging
+                    sub_banding_scheme(directory, num, grain_sets, num_layers, elem_list_2, el_centroids_periodic, num_vox, num_planes)
+                    
+            else:
+                # Calculate layers of bands
+                el_plane_layers = make_banded(el_centroids, el_grain, grain_centroids, orientations, planes, band_width, directory, num)
+                
+                # Write bands to text file
+                num_layers, elem_list_2 = write_band_sets_advanced_rev2(el_plane_layers, grain_sets, directory, num)
+
+                # Store which elements belong to each band for FIP averaging over bands
+                store_bands(directory, elem_list_2, num_layers, num)
+                
+                if create_sub_bands:
+                    # Create sub-band regions and files necessary for FIP volume averaging
+                    sub_banding_scheme(directory, num, grain_sets, num_layers, elem_list_2, el_centroids, num_vox, num_planes)
             
-            if create_sub_bands:
-                # Create sub-band regions and files necessary for FIP volume averaging
-                sub_banding_scheme(directory, num, grain_sets, num_layers, elem_list_2, el_centroids_periodic, num_vox, num_planes)
             
         elif (face_bc[0] == face_bc[1] == face_bc[2] == 'free'):    
             # Calculate layers of bands
@@ -1609,11 +1645,15 @@ def main():
     # NOTE: Microstructure(s) can be created with this intially set to False, and the "gen_microstructures" can be executed with the variable "generate_new_microstructure_files" set to False, so that the SAME microstructure(s) can undergo the sub-banding process at a later time.
     create_sub_bands = True
 
+    # Specify whether the centroids of grains split by the microstructure boundary should be manipulated to reflect periodicity
+    # Setting this to False will substantially increase the speed at which microstructures are pre-processed, but will reduce the accuracy of computed and volume-averaged fatigue indicator parameters downstream! 
+    # Users can set this to False but rerun this script with "generate_new_microstructure_files" set to False and "compute_kosher_grain_centroids" set to True to compute the realistic grain centroids at a later time
+    compute_kosher_grain_centroids = True
 
     ''' Specify boundary conditions '''
     # Boundary conditions, either "periodic" or "free surface", for X,Y,Z directions
     # Three possible combinations: 1) all 'periodic', 2) all 'free', or 3) two 'periodic' + one 'free'
-    face_bc = ['free', 'free', 'free']
+    face_bc = ['periodic', 'periodic', 'periodic']
 
     # Specify whether DREAM.3D was previously executed on these files
     # If set to False, the script will NOT generate new DREAM.3D microstructure(s) and instead process the existing microstructures by reading the .csv and GrainID_#.txt files
@@ -1627,7 +1667,7 @@ def main():
     print_params(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, num_instantiations, d3d_input_file)
     
     # Call to the main function
-    gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, create_sub_bands, num_instantiations, generate_new_microstructure_files, d3d_input_file, d3d_pipeline_path, d3d_executable_path)
+    gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, create_sub_bands, num_instantiations, generate_new_microstructure_files, compute_kosher_grain_centroids, d3d_input_file, d3d_pipeline_path, d3d_executable_path)
 
 
 
