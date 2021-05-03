@@ -1612,10 +1612,13 @@ def main():
     # Please see the references below for more information
     # WARNING!: If this is too low for very refined grains, this module will take a long time to run!
     # This is because it attempts to determine all UNIQUE combinations of some number of neighboring elements
-    # NOTE: Aim for ~8-10% of the average grain volume as the num_vox
+    
+    # NOTE: Aim for ~8-10% of the average grain volume as the num_vox, as specified below
+    # This is especially important when comparing microstructures with different grain sizes!
+    num_vox_percentage = 0.10
     
     # This line calculates num_vox to be 10% of the predicted average number of elements per grain
-    num_vox = np.around(np.prod(shape) / (np.prod(size) / ( (1.0/6.0) * np.pi * avg_grain_size ** 3  ) ) * 0.10).astype(int)
+    num_vox = np.around(np.prod(shape) / (np.prod(size) / ( (1.0/6.0) * np.pi * avg_grain_size ** 3  ) ) * num_vox_percentage).astype(int)
     
     # Comment out the above line and uncomment the line below to manually set the number of elements per sub-band
     # num_vox = 8
