@@ -7,7 +7,13 @@
   <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. Effects of boundary conditions on microstructure-sensitive fatigue crystal plasticity analysis. (in review).
   
   <B>Materials Commons Data set:</B> https://doi.org/10.13011/m3-mhgc-ec71
+
+
+## Effects of sample size and grain neighborhood
   
+  <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. Microstructure effects on the extreme value fatigue response of FCC metals and alloys: Effects of sample size and grain neighborhood. (in review).
+  
+  <B>Materials Commons Data set:</B> https://doi.org/10.13011/m3-31wm-h036
   
 
 ## Effects of grain size and grain shape
