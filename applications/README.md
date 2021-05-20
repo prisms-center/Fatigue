@@ -22,6 +22,6 @@
   
   <B>Materials Commons Data set:</B> https://doi.org/10.13011/m3-f90v-gs55
   
-  ## Generate simple microstructures
+  ## Generate simple microstructure
   
   Scripts for users to generate simple microstructures using Python and DREAM.3D.
