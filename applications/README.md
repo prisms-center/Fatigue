@@ -21,3 +21,7 @@
   <B>Reference:</B> A. Lakshmanan, M. Yaghoobi, K. S. Stopka, and V. Sundararaghavan. Crystal plasticity finite element modeling of grain shape and size effects. (in review).
   
   <B>Materials Commons Data set:</B> https://doi.org/10.13011/m3-f90v-gs55
+  
+  ## Generate simple microstructures
+  
+  Scripts for users to generate simple microstructures using Python and DREAM.3D.
