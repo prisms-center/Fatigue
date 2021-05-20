@@ -1,6 +1,6 @@
 # Generate simple microstructure
 
-  This short Python script and associated DREAM.3D .json file will generate a simple microstructure with a 3D array of grains with some number of elements per grain. The current setting in the script will create a microstructure with 4 x 10 x 7 grains with 216 elements per grain.
+  This Python script and DREAM.3D .json file will generate a simple microstructure with a 3D array of grains with some number of elements per grain. The default settings in the script will create a microstructure with 4 x 10 x 7 grains and 216 elements per grain.
   
   ## Python script
   
@@ -23,7 +23,7 @@
   gen_ms.main() # Execute the 'main()' function
   ```
   
-  The two variables that should be changed in the script are:
+  The two variables for users to change are:
   
   ```python
     # Number of elements per side for each grain, i.e., a value of 3 will create a microstructure with 3^3 = 27 elements per grain
@@ -48,7 +48,7 @@
   3. The location of the .dream3d file that contains the desired crystallographic information in the "Read DREAM.3D Data File" filter.
   4. The paths to where subsequent files are stored (e.g., .csv file with feature data, .vtk file with microstructure information at each voxel, .dream3d file that contains the entire microstructure, etc.).
   
-  The default settings in the Python script with the .json pipeline will create the following microstructure, show here with unique grains. As listed, there are 4, 10, and 7 grains in the X, Y, and Z directions, respectively. As a note, this microstructure is non-periodic.
+  The default settings in the Python script will create the following microstructure, show here with unique grains. As listed, there are 4, 10, and 7 grains in the X, Y, and Z directions, respectively. As a note, this microstructure is non-periodic.
   
   ![grain_IDs](https://user-images.githubusercontent.com/74416866/118996464-8e8a9800-b94d-11eb-8f4c-eacc0fc8954a.png)
   
@@ -66,7 +66,7 @@
   
   ## Notes for use with the generate_microstructures.py script and PRISMS-Fatigue
   
-  Once the .json file creates the other microstructure files, the [generate_microstructures.py](https://github.com/prisms-center/Fatigue/blob/main/src/generate_microstructures.py) script can be used to create the necessary post-processing files for FIP volume averaging. 
+  Once the .json pipeline creates the other microstructure files, the [generate_microstructures.py](https://github.com/prisms-center/Fatigue/blob/main/src/generate_microstructures.py) script can be used to create the necessary post-processing files for Fatigue Indicator Parameter (FIP) volume averaging. 
   
   The unique settings for the [generate_microstructures.py](https://github.com/prisms-center/Fatigue/blob/main/src/generate_microstructures.py) script to use with the microstructure files generated above are shown below.
   
@@ -74,14 +74,14 @@
     ''' Specify directory '''
     directory = os.path.dirname(DIR_LOC) + '\\tutorial\\test_ms_gen'
 
-    ''' Specify desired microstructure size and shape '''
+    ''' Specify microstructure size and shape '''
     # Size of microstructure instantiations in millimeters, in the X, Y, and Z directions, respectively.
-    # Assume here a voxel/element size of 0.0025 millimeters or 2.5 microns.
+    # Assume here a voxel/element size of 0.0025 millimeters or 2.5 microns; NOTE: should be the same as the "Import Dx File (Feature Ids)" filter in the .json pipeline above.
     # Calculated using [4, 10, 7] x 0.0025 x 6 
     size  = np.asarray([.06,.15,.105])
     
     # Shape of microstructure instantiations (number of voxels/elements), in the X, Y, and Z directions, respectively.
-    # IMPORTANT: at this point, only CUBIC voxel functionality supported even with a non-cubic microstructure
+    # IMPORTANT: at this point, only CUBIC voxel functionality is supported, even with a non-cubic microstructure
     # I.e., size = [.05, .1, .025] and shape = [50, 100, 25] is acceptable
     # Calculated using [4, 10, 7] x 6
     shape = np.asarray([24,60,42])
