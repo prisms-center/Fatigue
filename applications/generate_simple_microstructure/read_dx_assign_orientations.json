@@ -15,7 +15,7 @@
         "Filter_Human_Label": "Import Dx File (Feature Ids)",
         "Filter_Name": "DxReader",
         "Filter_Uuid": "{ba2238f8-a20f-5f2f-ac9f-43ed458460f7}",
-        "InputFile": "C:\\Users\\stopk\\Documents\\GitHub\\PRISMS-Fatigue\\tutorial\\test_ms_gen/grains_4_10_7_elems_per_grain_216_v1.txt",
+        "InputFile": "C:\\Users\\stopk\\Documents\\GitHub\\PRISMS-Fatigue\\tutorial\\test_ms_gen\\grains_4_10_7_elems_per_grain_216_v1.txt",
         "Origin": {
             "x": 0,
             "y": 0,
@@ -639,7 +639,7 @@
         "Filter_Human_Label": "Vtk Rectilinear Grid Exporter",
         "Filter_Name": "VtkRectilinearGridWriter",
         "Filter_Uuid": "{a043bd66-2681-5126-82e1-5fdc46694bf4}",
-        "OutputFile": "C:\\Users\\stopk\\Documents\\GitHub\\PRISMS-Fatigue\\tutorial\\test_ms_gen\\attempt.vtk",
+        "OutputFile": "C:/Users/stopk/Documents/GitHub/PRISMS-Fatigue/tutorial/test_ms_gen/Output_FakeMatl_0.vtk",
         "SelectedDataArrayPaths": [
             {
                 "Attribute Matrix Name": "CellData",
@@ -1180,7 +1180,7 @@
             "Data Container Name": "SyntheticVolumeDataContainer"
         },
         "DelimiterChoiceInt": 0,
-        "FeatureDataFile": "C:\\Users\\stopk\\Documents\\GitHub\\PRISMS-Fatigue\\tutorial\\test_ms_gen\\attempt_v1.csv",
+        "FeatureDataFile": "C:/Users/stopk/Documents/GitHub/PRISMS-Fatigue/tutorial/test_ms_gen/FeatureData_FakeMatl_0.csv",
         "FilterVersion": "1.2.812",
         "Filter_Enabled": true,
         "Filter_Human_Label": "Export Feature Data as CSV File",
@@ -1362,7 +1362,7 @@
         "Filter_Uuid": "{5fbf9204-2c6c-597b-856a-f4612adbac38}",
         "MaxValPerLine": 1,
         "OutputFilePath": "C:/Users/stopk",
-        "OutputPath": "C:\\Users\\stopk\\Documents\\GitHub\\PRISMS-Fatigue\\tutorial\\test_ms_gen",
+        "OutputPath": "C:/Users/stopk/Documents/GitHub/PRISMS-Fatigue/tutorial/test_ms_gen",
         "OutputStyle": 0,
         "SelectedDataArrayPaths": [
             {
@@ -1378,7 +1378,7 @@
         "Filter_Human_Label": "Write DREAM.3D Data File",
         "Filter_Name": "DataContainerWriter",
         "Filter_Uuid": "{3fcd4c43-9d75-5b86-aad4-4441bc914f37}",
-        "OutputFile": "C:\\Users\\stopk\\Documents\\GitHub\\PRISMS-Fatigue\\tutorial\\test_ms_gen\\attempt_v1.dream3d",
+        "OutputFile": "C:/Users/stopk/Documents/GitHub/PRISMS-Fatigue/tutorial/test_ms_gen/Output_FakeMatl_0.dream3d",
         "WriteTimeSeries": 0,
         "WriteXdmfFile": 1
     },

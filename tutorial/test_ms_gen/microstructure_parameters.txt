@@ -1,0 +1,11 @@
+*** Parameters for the microstructures in this simulation folder ***
+
+Directory:  C:\Users\stopk\Documents\GitHub\PRISMS-Fatigue\tutorial\test_ms_gen 
+DREAM.3D Input file:  Al7075_random_texture_equiaxed_grains.dream3d 
+Size (mm) in the X, Y, and Z:  0.0600, 0.1500, 0.1050
+Shape in the X, Y, and Z:  24, 60, 42
+Elements per sub-band:  9 
+Number of element band thickness:  1 
+Number of slip planes for banding:  4 
+Face boundary conditions in X, Y, and Z:  free, free, free 
+Number of microstructure instantiations generated:  1
