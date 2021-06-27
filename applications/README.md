@@ -4,7 +4,7 @@
     
 ## Effects of boundary conditions
   
-  <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. Effects of boundary conditions on microstructure-sensitive fatigue crystal plasticity analysis. (in review).
+  <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. [Effects of boundary conditions on microstructure-sensitive fatigue crystal plasticity analysis](https://doi.org/10.1007/s40192-021-00219-2). <i>Integr Mater Manuf Innov</i> (2021).
   
   <B>Materials Commons Data set:</B> https://doi.org/10.13011/m3-mhgc-ec71
 
