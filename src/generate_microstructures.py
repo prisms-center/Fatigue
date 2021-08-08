@@ -1428,7 +1428,7 @@ def gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness
         print('Band width of %g' % band_width)
         
         # Quick check to make sure band_width makes sense
-        if np.round(band_width * shape[0],8) / band_thickness != size[0]:
+        if np.round(np.round(band_width * shape[0],8) / band_thickness, 8) != size[0]:
             raise IOError('Please fix rounding!')
     else:
         raise ValueError('Elements are not cubic in shape!')
@@ -1617,7 +1617,7 @@ def main():
     # This is especially important when comparing microstructures with different grain sizes!
     num_vox_percentage = 0.10
     
-    # This line calculates num_vox to be 10% of the predicted average number of elements per grain
+    # This line calculates num_vox to be "num_vox_percentage" percent of the predicted average number of elements per grain
     num_vox = np.around(np.prod(shape) / (np.prod(size) / ( (1.0/6.0) * np.pi * avg_grain_size ** 3  ) ) * num_vox_percentage).astype(int)
     
     # Comment out the above line and uncomment the line below to manually set the number of elements per sub-band
