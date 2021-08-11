@@ -144,7 +144,7 @@ def append_FIPs_to_vtk(directory, shape, num, FIP_type, num_slip_systems):
 
     # Specify .vtk file names
     Fname_vtk_loc = os.path.join(os.getcwd(), 'Output_FakeMatl_%d.vtk' % num)
-    Fname_vtk_new = os.path.join(os.getcwd(), 'Output_FakeMatl_%d_appended.vtk' % num)
+    Fname_vtk_new = os.path.join(os.getcwd(), 'Output_FakeMatl_%d_appended_%s.vtk' % (num, FIP_type))
 
     # Create copy of original .vtk file in case something goes wrong!
     shutil.copy(Fname_vtk_loc, Fname_vtk_new)
