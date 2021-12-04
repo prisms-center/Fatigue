@@ -515,7 +515,7 @@ def sub_banding_scheme(directory, i, grain_sets, number_of_layers, elem_list, el
     
     # Specify whether each sub-band should be written to a text file
     # This is useful for visualization purposes or to investigate the sub-band scheme, but may be set to False to prevent excessively large text files from being generated
-    write_to_file = True 
+    write_to_file = False 
     
     start_time = time.time()
     
@@ -1672,11 +1672,13 @@ def main():
     # Call to the main function
     gen_microstructures(directory, size, shape, face_bc, num_vox, band_thickness, num_planes, create_sub_bands, num_instantiations, generate_new_microstructure_files, compute_kosher_grain_centroids, d3d_input_file, d3d_pipeline_path, d3d_executable_path)
 
-
-
 if __name__ == "__main__":
     main()
-   
+    
+# Relevant references:
+
+# M. Yaghoobi, K. S. Stopka, A. Lakshmanan, V. Sundararaghavan, J. E. Allison, and D. L. McDowell. PRISMS-Fatigue computational framework for fatigue analysis in polycrystalline metals and alloys. npj Comput. Mater., 7, 38 (2021). https://doi.org/10.1038/s41524-021-00506-8
+
 # Stopka, K.S., McDowell, D.L. Microstructure-Sensitive Computational Estimates of Driving Forces for Surface Versus Subsurface Fatigue Crack Formation in Duplex Ti-6Al-4V and Al 7075-T6. JOM 72, 28–38 (2020). https://doi.org/10.1007/s11837-019-03804-1
 
 # Stopka and McDowell, “Microstructure-Sensitive Computational Multiaxial Fatigue of Al 7075-T6 and Duplex Ti-6Al-4V,” International Journal of Fatigue, 133 (2020) 105460.  https://doi.org/10.1016/j.ijfatigue.2019.105460

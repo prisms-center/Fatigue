@@ -1336,15 +1336,11 @@ def read_and_plot_secondary_FIPs():
     plt.savefig(os.path.join(store_dirr, '3rd_highest_FS_FIP_variation_second_plot'))
     plt.close()
 
-
-
-
-
-
-
-
 def main():
+    # Plot variation in FIPs; first plot
     read_and_plot_main_FIPs()
+    
+    # Plot variation in FIPs; second plot
     read_and_plot_secondary_FIPs()
 
 if __name__ == "__main__":

@@ -765,12 +765,14 @@ def main():
 if __name__ == "__main__":
     main()
 
-# References with more information on these types of simulations:
+# Relevant references:
+
+# M. Yaghoobi, K. S. Stopka, A. Lakshmanan, V. Sundararaghavan, J. E. Allison, and D. L. McDowell. PRISMS-Fatigue computational framework for fatigue analysis in polycrystalline metals and alloys. npj Comput. Mater., 7, 38 (2021). https://doi.org/10.1038/s41524-021-00506-8
+
 # Stopka, K.S., McDowell, D.L. Microstructure-Sensitive Computational Estimates of Driving Forces for Surface Versus Subsurface Fatigue Crack Formation in Duplex Ti-6Al-4V and Al 7075-T6. JOM 72, 28–38 (2020). https://doi.org/10.1007/s11837-019-03804-1
 
 # Stopka and McDowell, “Microstructure-Sensitive Computational Multiaxial Fatigue of Al 7075-T6 and Duplex Ti-6Al-4V,” International Journal of Fatigue, 133 (2020) 105460.  https://doi.org/10.1016/j.ijfatigue.2019.105460
 
-    
+# Stopka, K.S., Gu, T., McDowell, D.L. Effects of algorithmic simulation parameters on the prediction of extreme value fatigue indicator parameters in duplex Ti-6Al-4V. International Journal of Fatigue, 141 (2020) 105865.  https://doi.org/10.1016/j.ijfatigue.2020.105865
 
-    
-    
+# Castelluccio, G.M., McDowell, D.L. Assessment of small fatigue crack growth driving forces in single crystals with and without slip bands. Int J Fract 176, 49–64 (2012). https://doi.org/10.1007/s10704-012-9726-y
