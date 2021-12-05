@@ -11,11 +11,11 @@ import shutil
 # Get name of directory that contains the PRISMS-Fatigue scripts
 DIR_LOC = os.path.dirname(os.path.abspath(__file__))
 
-def import_PRISMS_data(directory, shape, num, FIP_type, num_slip_systems, FIP_params, gamma_plane_simulations):
+def import_PRISMS_data(directory, shape, num, FIP_type, num_slip_systems, FIP_params, gamma_plane_simulations, full_integration):
     # Function to import data from PRISMS-plasticity simulations and save as pickle file for volume averaging
     
     # WARNING: MANY PARTS OF THIS FUNCTION WILL CHANGE WHEN DEFINING A NEW FIP!!!
-    # THIS FUNCTION CURRENTLY SUPPORTS TWO TYPES OF FIPS
+    # THIS FUNCTION CURRENTLY SUPPORTS THREE TYPES OF FIPS
     
     # Store previous directory and change directory
     prev_dir = os.getcwd()
@@ -24,38 +24,56 @@ def import_PRISMS_data(directory, shape, num, FIP_type, num_slip_systems, FIP_pa
     # Specify files with simulation values at points of maximum compression and maximum tension
     dirr_max_comp = os.path.join(directory, 'MaxComp_%d.csv' % num)
     dirr_max_tens = os.path.join(directory, 'MaxTen_%d.csv' % num)
-
-    # Read in data using pandas module
-    aver_comp = pd.read_csv(dirr_max_comp, index_col = False, header = None)
-    aver_tens = pd.read_csv(dirr_max_tens, index_col = False, header = None)
-    # "index_col = False" means that the first column is NOT the index, which is the case in the quadrature output files here.
+    
+    # Check whether column headers are present in the files. If true, overwrite column headers.
+    with open(dirr_max_comp) as f:
+        reader = csv.reader(f)
+        row1 = next(reader)
+        if row1[0] == 'grain_ID':
+            # Column headers in .csv file
+            aver_comp = pd.read_csv(dirr_max_comp, index_col = False)
+            aver_comp.columns = range(aver_comp.shape[1])
+        else:
+            # No column headers present
+            aver_comp = pd.read_csv(dirr_max_comp, index_col = False, header = None)
+            
+ 
+    with open(dirr_max_tens) as f:
+        reader = csv.reader(f)
+        row1 = next(reader)
+        if row1[0] == 'grain_ID':
+            # Column headers in .csv file
+            aver_tens = pd.read_csv(dirr_max_tens, index_col = False)
+            aver_tens.columns = range(aver_tens.shape[1])
+        else:
+            # No column headers present
+            aver_tens = pd.read_csv(dirr_max_tens, index_col = False, header = None)   
+    
+    
+    # NOTE: "index_col = False" means that the first column is NOT the index, which is the case in the quadrature output files here.
     
     
     # NOTE: the default PRISMS-Fatigue quadrature output columns correspond to the following values for each quadrature point (or element in the case of simulations with reduced integration elements)
     # The first four columns do not change during the simulation. The remaining columns correspond to current values of state variables
     # Grain ID, x position, y position, z position, plastic shear strain for slip systems 1 thru 12, stress normal to slip planes of slip systems 1 thru 12, plastic strain tensor in global directions (i.e., Ep11, Ep12, Ep13	Ep21, Ep22, Ep23, Ep31, Ep32, Ep33), Effective plastic strain
 
-
     # PRISMS can employ full integration elements, but reduced integration is employed for PRISMS-Fatigue
-    # If full integration is used, please uncomment these lines of code to average values over the eight integration points per element
-    # aver_comp_2 = pd.DataFrame(np.einsum('ijk->ik',aver_comp.values.reshape(-1,8,aver_comp.shape[1]))/8.0, columns=aver_comp.columns)
-    # aver_tens_2 = pd.DataFrame(np.einsum('ijk->ik',aver_tens.values.reshape(-1,8,aver_tens.shape[1]))/8.0, columns=aver_tens.columns)
+    # If full integration is used, perform volume average of values over the eight integration points per element
+    if full_integration:
+        aver_comp = pd.DataFrame(np.einsum('ijk->ik',aver_comp.values.reshape(-1,8,aver_comp.shape[1]))/8.0, columns=aver_comp.columns)
+        aver_tens = pd.DataFrame(np.einsum('ijk->ik',aver_tens.values.reshape(-1,8,aver_tens.shape[1]))/8.0, columns=aver_tens.columns)
    
-    # If reduced intergration performed in PRISMS, there is no need to average over eight integration points per element (two lines of code directly above)
-    aver_comp_2 = aver_comp
-    aver_tens_2 = aver_tens
-    
     # Sort by X, then Y, then Z, since PRISMS discretizes the domain for parallelization.
     # Values must be sorted this way to match the way microstructures are instantiated using the generate_microstructure.py script! 
     # Positions in X, Y, and Z directions corresponds to columns 1 thru 3, respectively
-    aver_comp_2_sorted = aver_comp_2.sort_values([3,2,1], ascending = [True, True, True])
-    aver_tens_2_sorted = aver_tens_2.sort_values([3,2,1], ascending = [True, True, True])
+    aver_comp_2_sorted = aver_comp.sort_values([3,2,1], ascending = [True, True, True])
+    aver_tens_2_sorted = aver_tens.sort_values([3,2,1], ascending = [True, True, True])
 
     # Calculate plastic shear strain range
     # If a new FIP is specified, the column names in the .csv files will be read in according to the nomenclature below!
     # Corresponds to columns 4 thru 15
-    delta_gamma     = (aver_tens_2_sorted - aver_comp_2_sorted) * 0.5
-    slip_values     = abs(delta_gamma[[ii for ii in range(4,16)]])
+    delta_gamma = (aver_tens_2_sorted - aver_comp_2_sorted) * 0.5
+    slip_values = abs(delta_gamma[[ii for ii in range(4,16)]])
     
     # Get stress normal to all slip planes at point of max tension
     # Corresponds to columns 16 thru 27
@@ -65,10 +83,10 @@ def import_PRISMS_data(directory, shape, num, FIP_type, num_slip_systems, FIP_pa
     normal_stresses = normal_stresses_temp.clip(lower = 0)
     
     # Delete some arrays to reduce memory consumption
-    del aver_comp, aver_comp_2, aver_tens, aver_tens_2, delta_gamma, normal_stresses_temp
+    del aver_comp, aver_tens, delta_gamma, normal_stresses_temp
     
     # Initialize array of FIPs
-    fips_stored = np.zeros((shape[0] * shape[1] * shape[2],num_slip_systems))
+    fips_stored = np.zeros((shape[0] * shape[1] * shape[2], num_slip_systems))
     
     # Calculate FIPs
     # Please append new FIP definitions to the end of this list
@@ -208,6 +226,10 @@ def main():
     # This is only required if calculating the necessary files to generate a multiaxial gamma plane
     num_gamma_plane_folders = 1
     
+    # Specify whether PRISMS-Plasticity performs simulations with fully integrated elements
+    # This corresponds to the "Order of quadrature" parameter in the PRISMS-Plasticity .prm file
+    full_integration = False
+    
     if gamma_plane_simulations:
     
         # Iterate through folders containing result files from multiaxial simulations
@@ -217,12 +239,12 @@ def main():
             
             for ii in range(num_instantiations):
                 # print('Instantiation number %d' % ii)
-                import_PRISMS_data(dirr, shape, ii, FIP_type, num_slip_systems, FIP_params, gamma_plane_simulations)        
+                import_PRISMS_data(dirr, shape, ii, FIP_type, num_slip_systems, FIP_params, gamma_plane_simulations, full_integration)
         
     else:
         # Otherwise, compute FIPs for a single folder
         for ii in range(num_instantiations):
-            import_PRISMS_data(directory, shape, ii, FIP_type, num_slip_systems, FIP_params, gamma_plane_simulations)      
+            import_PRISMS_data(directory, shape, ii, FIP_type, num_slip_systems, FIP_params, gamma_plane_simulations, full_integration)
     
     if vtk_visualize_FIPs and not gamma_plane_simulations:
         for ii in range(num_instantiations):
@@ -232,7 +254,14 @@ def main():
 if __name__ == "__main__":
     main()
 
-# References with more information on these types of simulations:
+# Relevant references:
+
+# M. Yaghoobi, K. S. Stopka, A. Lakshmanan, V. Sundararaghavan, J. E. Allison, and D. L. McDowell. PRISMS-Fatigue computational framework for fatigue analysis in polycrystalline metals and alloys. npj Comput. Mater., 7, 38 (2021). https://doi.org/10.1038/s41524-021-00506-8
+
 # Stopka, K.S., McDowell, D.L. Microstructure-Sensitive Computational Estimates of Driving Forces for Surface Versus Subsurface Fatigue Crack Formation in Duplex Ti-6Al-4V and Al 7075-T6. JOM 72, 28–38 (2020). https://doi.org/10.1007/s11837-019-03804-1
 
 # Stopka and McDowell, “Microstructure-Sensitive Computational Multiaxial Fatigue of Al 7075-T6 and Duplex Ti-6Al-4V,” International Journal of Fatigue, 133 (2020) 105460.  https://doi.org/10.1016/j.ijfatigue.2019.105460
+
+# Stopka, K.S., Gu, T., McDowell, D.L. Effects of algorithmic simulation parameters on the prediction of extreme value fatigue indicator parameters in duplex Ti-6Al-4V. International Journal of Fatigue, 141 (2020) 105865.  https://doi.org/10.1016/j.ijfatigue.2020.105865
+
+# Castelluccio, G.M., McDowell, D.L. Assessment of small fatigue crack growth driving forces in single crystals with and without slip bands. Int J Fract 176, 49–64 (2012). https://doi.org/10.1007/s10704-012-9726-y

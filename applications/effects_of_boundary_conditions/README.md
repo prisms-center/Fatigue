@@ -33,4 +33,4 @@
   Alternatively, users can import specific functions from the Python scripts, or copy-and-paste certain functions into the interactive Python session.
   
   
-  <B>Reference</B>:  K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. [Effects of boundary conditions on microstructure-sensitive fatigue crystal plasticity analysis](https://doi.org/10.1007/s40192-021-00219-2). <i>Integr Mater Manuf Innov</i> (2021).
+  <B>Reference</B>:  K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. [Effects of boundary conditions on microstructure-sensitive fatigue crystal plasticity analysis](https://doi.org/10.1007/s40192-021-00219-2). <i>Integr. Mater. Manuf. Innov.</i>, <b>10</b>, 393-412 (2021).

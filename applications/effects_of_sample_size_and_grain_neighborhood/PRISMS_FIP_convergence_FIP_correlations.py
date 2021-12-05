@@ -320,14 +320,14 @@ def compute_correlations():
     # Plot Schmid Factors of the highest grains
     print('Plotting Schmid Factors')
     fig = plt.figure(facecolor="white", figsize=(6, 4), dpi=1200)
-    cm = plt.cm.get_cmap('jet')
-    plt.scatter(range(top_fips_to_plot), SF_of_highest_FIPs[0:top_fips_to_plot], c = all_data.transpose()[0][0:top_fips_to_plot], cmap=cm, zorder = 2)
+    cm = plt.cm.get_cmap('viridis')
+    plt.scatter(range(1, top_fips_to_plot+1), SF_of_highest_FIPs[0:top_fips_to_plot], c = all_data.transpose()[0][0:top_fips_to_plot], cmap=cm, zorder = 2)
     plt.grid(zorder = 1)
     cbarr = plt.colorbar()
     cbarr.set_label("Sub-band averaged FIP")
 
     plt.xlabel('Grain ID by FIP rank')
-    plt.ylabel('Schmid Factor of Slip System with largest FIP')
+    plt.ylabel('Schmid Factor of slip system with highest FIP')
     plt.tight_layout()
     plt.savefig(os.path.join(store_dirr, 'Schmid_Factor_by_grain_ID_FIP_rank_top_%d_FIPs' % top_fips_to_plot))
     plt.close()
@@ -345,14 +345,14 @@ def compute_correlations():
     print('Plotting grain diameters')
     # Plot the grain diameters of the grains that manifest the highest 50 FIPs
     fig = plt.figure(facecolor="white", figsize=(6, 4), dpi=1200)
-    cm = plt.cm.get_cmap('jet')
-    plt.scatter(range(top_fips_to_plot), dia_highest_FIP_grains[0:top_fips_to_plot], c = all_data.transpose()[0][0:top_fips_to_plot], cmap=cm, zorder = 2)
+    cm = plt.cm.get_cmap('viridis')
+    plt.scatter(range(1, top_fips_to_plot + 1), dia_highest_FIP_grains[0:top_fips_to_plot], c = all_data.transpose()[0][0:top_fips_to_plot], cmap=cm, zorder = 2)
     plt.grid(zorder = 1)
     cbarr = plt.colorbar()
-    cbarr.set_label("Sub-band averaged FIP")
+    cbarr.set_label("Sub-band volume-averaged FIP")
 
     plt.xlabel('Grain ID by FIP rank')
-    plt.ylabel('Equivalent grain diameter')
+    plt.ylabel('Eq. grain diameter of highest FIP grain [$\mu$m]', fontsize = 10)
     plt.tight_layout()
     plt.savefig(os.path.join(store_dirr, 'Grain_diameter_by_grain_ID_FIP_rank_top_%d_FIPs' % top_fips_to_plot))
     plt.close()
@@ -411,14 +411,14 @@ def compute_correlations():
     # Plot the plastic shear strain range of the sub bands that manifest the highest 50 FIPs
     print('Plotting plastic shear strain range')
     fig = plt.figure(facecolor="white", figsize=(6, 4), dpi=1200)
-    cm = plt.cm.get_cmap('jet')
-    plt.scatter(range(num_fips), FIP_plastic_range, c = all_data.transpose()[0][:num_fips], cmap=cm, zorder = 2)
+    cm = plt.cm.get_cmap('viridis')
+    plt.scatter(range(1, num_fips + 1), FIP_plastic_range, c = all_data.transpose()[0][:num_fips], cmap=cm, zorder = 2)
     plt.grid(zorder = 1)
     plt.colorbar()
 
     plt.ylim(0.0011, 0.0021)
     plt.xlabel('Grain ID by FIP rank')
-    plt.ylabel('PSSR on slip system with largest FIP')
+    plt.ylabel('PSSR on slip system with highest FIP')
     plt.tight_layout()
     plt.savefig(os.path.join(store_dirr, 'PSSR_by_grain_ID_FIP_rank_top_%d_FIPs' % num_fips))
     plt.close()   
@@ -426,24 +426,23 @@ def compute_correlations():
     print('Plotting normal stresses')
     # Plot the normal stress of the sub bands that manifest the highest 50 FIPs
     fig = plt.figure(facecolor="white", figsize=(6, 4), dpi=1200)
-    cm = plt.cm.get_cmap('jet')
-    plt.scatter(range(num_fips), raw_normal_stress, c = all_data.transpose()[0][:num_fips], cmap=cm, zorder = 2)
+    cm = plt.cm.get_cmap('viridis')
+    plt.scatter(range(1, num_fips + 1), raw_normal_stress, c = all_data.transpose()[0][:num_fips], cmap=cm, zorder = 2)
     plt.grid(zorder = 1)
-    plt.colorbar()
+    cbarr = plt.colorbar()
+    cbarr.set_label("Sub-band volume-averaged FIP")
     
     plt.ylim(200, 310)
     plt.xlabel('Grain ID by FIP rank')
-    plt.ylabel('Stress normal to slip system with largest FIP')
+    plt.ylabel('Stress normal to slip system with highest FIP [MPa]', fontsize = 9)
+    # plt.ylabel(r'$\sigma$ normal to slip system with largest FIP [MPa]')
     plt.tight_layout()
     plt.savefig(os.path.join(store_dirr, 'Normal_stress_by_grain_ID_FIP_rank_top_%d_FIPs' % num_fips))
     plt.close()   
     
     
     
-    
-    
-    
-    
+
     
     
     
