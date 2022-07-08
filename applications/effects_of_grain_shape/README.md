@@ -35,4 +35,4 @@
   Alternatively, users can import specific functions from the Python scripts, or copy-and-paste certain functions into the interactive Python session.
   
     
-  <B>Reference</B>:  A. Lakshmanan, M. Yaghoobi, K. S. Stopka, and V. Sundararaghavan. Crystal plasticity finite element modeling of grain shape and size effects. (in review).
+  <B>Reference</B>:  A. Lakshmanan, M. Yaghoobi, K. S. Stopka, and V. Sundararaghavan. [Crystal plasticity finite element modeling of grain size and morphology effects on yield strength and extreme value fatigue response](https://doi.org/10.1016/j.jmrt.2022.06.075). <i>J. Mater. Res. Technol.</i>, <b>9</b>, 3337-3354 (2022).
