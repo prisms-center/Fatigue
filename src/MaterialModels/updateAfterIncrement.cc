@@ -8,6 +8,18 @@ void crystalPlasticity<dim>::updateAfterIncrement()
 	local_F_r=0.0;
 	local_F_s=0.0;
 	local_F_e = 0.0;
+	unsigned int CheckBufferRegion,dimBuffer;
+	double lowerBuffer,upperBuffer;
+	Point<dim> pnt2;
+	Vector<double> userDefinedAverageOutput,local_userDefinedAverageOutput;
+
+	if (this->userInputs.flagUserDefinedAverageOutput){
+		userDefinedAverageOutput.reinit(this->userInputs.numberUserDefinedAverageOutput);
+		userDefinedAverageOutput=0;
+		local_userDefinedAverageOutput.reinit(this->userInputs.numberUserDefinedAverageOutput);
+		local_userDefinedAverageOutput=0;
+	}
+
 	QGauss<dim>  quadrature(this->userInputs.quadOrder);
 	FEValues<dim> fe_values(this->FE, quadrature, update_quadrature_points | update_gradients | update_JxW_values);
 	const unsigned int num_quad_points = quadrature.size();
@@ -32,6 +44,25 @@ void crystalPlasticity<dim>::updateAfterIncrement()
 			//loop over quadrature points
 			cell->set_user_index(fe_values.get_cell()->user_index());
 			cell->get_dof_indices(local_dof_indices);
+
+			//////////Buffer layer feature/////////////
+			if (this->userInputs.flagBufferLayer){
+				pnt2=cell->center();
+				dimBuffer=this->userInputs.dimBufferLayer;
+				lowerBuffer=this->userInputs.lowerBufferLayer;
+				upperBuffer=this->userInputs.upperBufferLayer;
+				if ((pnt2[dimBuffer]>=lowerBuffer)&&(pnt2[dimBuffer]<=upperBuffer)){
+					CheckBufferRegion=1;
+				}
+				else{
+					CheckBufferRegion=0;
+				}
+			}
+			else{
+				CheckBufferRegion=1;
+			}
+			/////////////////////////////////////////////////////
+
 			Vector<double> Ulocal(dofs_per_cell);
 
 			if (!this->userInputs.flagTaylorModel){
@@ -91,10 +122,6 @@ void crystalPlasticity<dim>::updateAfterIncrement()
 						}
 					}
 				}
-
-				local_strain.add(1.0, temp4);
-				local_stress.add(1.0, temp3);
-				local_microvol = local_microvol + fe_values.JxW(q);
 
 				//calculate von-Mises stress and equivalent strain
 				double traceE, traceT, vonmises, eqvstrain;
@@ -164,22 +191,33 @@ void crystalPlasticity<dim>::updateAfterIncrement()
 					this->postprocessValues(cellID, q, 26, 0) = 0;
 				}
 
+				if (CheckBufferRegion==1) {
+					local_strain.add(1.0, temp4);
+					local_stress.add(1.0, temp3);
+					local_microvol = local_microvol + fe_values.JxW(q);
+					for(unsigned int i=0;i<this->userInputs.numTwinSystems1;i++){
+						local_F_r=local_F_r+twinfraction_iter[cellID][q][i]*fe_values.JxW(q);
+					}
 
+					if (!this->userInputs.enableAdvancedTwinModel){
+						local_F_e = local_F_e + twin_ouput[cellID][q] * fe_values.JxW(q);
+					}
+					else{
+						local_F_e=local_F_e+ TotaltwinvfK[cellID][q]*fe_values.JxW(q);
+					}
 
-				for(unsigned int i=0;i<this->userInputs.numTwinSystems1;i++){
-					local_F_r=local_F_r+twinfraction_iter[cellID][q][i]*fe_values.JxW(q);
-				}
+					for(unsigned int i=0;i<this->userInputs.numSlipSystems1;i++){
+						local_F_s=local_F_s+slipfraction_iter[cellID][q][i]*fe_values.JxW(q);
+					}
 
-				if (!this->userInputs.enableAdvancedTwinModel){
-					local_F_e = local_F_e + twin_ouput[cellID][q] * fe_values.JxW(q);
-				}
-				else{
-					local_F_e=local_F_e+ TotaltwinvfK[cellID][q]*fe_values.JxW(q);
-				}
-
-
-				for(unsigned int i=0;i<this->userInputs.numSlipSystems1;i++){
-					local_F_s=local_F_s+slipfraction_iter[cellID][q][i]*fe_values.JxW(q);
+					if (this->userInputs.flagUserDefinedAverageOutput){
+						////One should define their UserDefinedAverageOutput here by defining based on the state Variables
+						///In the following equation, "+0" should be substituted by "+targetVariable", where targetVariable is the variable you want to plot the average value.
+						//Also, the first equation should be copy and paste depending on the number of variables you want to output,
+						//and the integer in paranthesis should be updated accordingly.
+						//The maximum number of lines (output variables) are defined in the input file as "set Number of Output Userdefined Average Variable".
+						local_userDefinedAverageOutput(0)=local_userDefinedAverageOutput(0)+0;
+					}
 				}
 
 			}
@@ -327,17 +365,23 @@ void crystalPlasticity<dim>::updateAfterIncrement()
 
 	for(unsigned int i=0;i<dim;i++){
 		for(unsigned int j=0;j<dim;j++){
-			global_strain[i][j]=Utilities::MPI::sum(local_strain[i][j]/microvol,this->mpi_communicator);
-			global_stress[i][j]=Utilities::MPI::sum(local_stress[i][j]/microvol,this->mpi_communicator);
+			global_strain[i][j]=Utilities::MPI::sum(local_strain[i][j],this->mpi_communicator)/microvol;
+			global_stress[i][j]=Utilities::MPI::sum(local_stress[i][j],this->mpi_communicator)/microvol;
 		}
 	}
 	if (!this->userInputs.enableMultiphase){
-		F_e = Utilities::MPI::sum(local_F_e / microvol, this->mpi_communicator);
-		F_r=Utilities::MPI::sum(local_F_r/microvol,this->mpi_communicator);
-		F_s=Utilities::MPI::sum(local_F_s/microvol,this->mpi_communicator);
+		F_e = Utilities::MPI::sum(local_F_e , this->mpi_communicator)/ microvol;
+		F_r=Utilities::MPI::sum(local_F_r,this->mpi_communicator)/microvol;
+		F_s=Utilities::MPI::sum(local_F_s,this->mpi_communicator)/microvol;
 	}
 	else {
 		F_e=0;F_r=0;F_s=0;
+	}
+
+	if (this->userInputs.flagUserDefinedAverageOutput){
+		for(unsigned int i=0;i<this->userInputs.numberUserDefinedAverageOutput;i++){
+			userDefinedAverageOutput(i)=Utilities::MPI::sum(local_userDefinedAverageOutput(i),this->mpi_communicator)/microvol;
+		}
 	}
 
 	//check whether to write stress and strain data to file
@@ -350,11 +394,23 @@ void crystalPlasticity<dim>::updateAfterIncrement()
 
 		if(this->currentIncrement==0){
 			outputFile.open(dir.c_str());
-			outputFile << "Exx"<<'\t'<<"Eyy"<<'\t'<<"Ezz"<<'\t'<<"Eyz"<<'\t'<<"Exz"<<'\t'<<"Exy"<<'\t'<<"Txx"<<'\t'<<"Tyy"<<'\t'<<"Tzz"<<'\t'<<"Tyz"<<'\t'<<"Txz"<<'\t'<<"Txy"<<'\t'<<"TwinRealVF"<<'\t'<<"TwinMade"<<'\t'<<"SlipTotal"<<'\n';
+			outputFile << "Exx"<<'\t'<<"Eyy"<<'\t'<<"Ezz"<<'\t'<<"Eyz"<<'\t'<<"Exz"<<'\t'<<"Exy"<<'\t'<<"Txx"<<'\t'<<"Tyy"<<'\t'<<"Tzz"<<'\t'<<"Tyz"<<'\t'<<"Txz"<<'\t'<<"Txy"<<'\t'<<"TwinRealVF"<<'\t'<<"TwinMade"<<'\t'<<"SlipTotal";
+			if (this->userInputs.flagUserDefinedAverageOutput){
+				for(unsigned int i=0;i<this->userInputs.numberUserDefinedAverageOutput;i++){
+					outputFile <<'\t'<<"userDefined"<<i;
+				}
+			}
+			outputFile <<'\n';
 			outputFile.close();
 		}
 		outputFile.open(dir.c_str(),std::fstream::app);
-		outputFile << global_strain[0][0]<<'\t'<<global_strain[1][1]<<'\t'<<global_strain[2][2]<<'\t'<<global_strain[1][2]<<'\t'<<global_strain[0][2]<<'\t'<<global_strain[0][1]<<'\t'<<global_stress[0][0]<<'\t'<<global_stress[1][1]<<'\t'<<global_stress[2][2]<<'\t'<<global_stress[1][2]<<'\t'<<global_stress[0][2]<<'\t'<<global_stress[0][1]<<'\t'<<F_r<<'\t'<<F_e<<'\t'<<F_s<<'\n';
+		outputFile << global_strain[0][0]<<'\t'<<global_strain[1][1]<<'\t'<<global_strain[2][2]<<'\t'<<global_strain[1][2]<<'\t'<<global_strain[0][2]<<'\t'<<global_strain[0][1]<<'\t'<<global_stress[0][0]<<'\t'<<global_stress[1][1]<<'\t'<<global_stress[2][2]<<'\t'<<global_stress[1][2]<<'\t'<<global_stress[0][2]<<'\t'<<global_stress[0][1]<<'\t'<<F_r<<'\t'<<F_e<<'\t'<<F_s;
+		if (this->userInputs.flagUserDefinedAverageOutput){
+			for(unsigned int i=0;i<this->userInputs.numberUserDefinedAverageOutput;i++){
+				outputFile <<'\t'<<userDefinedAverageOutput(i);
+			}
+		}
+		outputFile <<'\n';
 		outputFile.close();
 	}
 
@@ -398,6 +454,9 @@ void crystalPlasticity<dim>::quatproduct(Vector<double> &quatp,Vector<double> &q
 template <int dim>
 void crystalPlasticity<dim>::quat2rod(Vector<double> &quat,Vector<double> &rod)
 {
+	if (fabs(quat(0))<1e-4){
+	   quat(0)=1e-4;
+	}
 	double invquat1 = 1/quat(0);
 
 	for (int i = 0;i <= 2;i++)
