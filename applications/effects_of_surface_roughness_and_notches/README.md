@@ -16,7 +16,7 @@
  1. Modified microstructure model with surface roughness profile.
  
  
- The last part of ```add_surface_roughness_to_pristine_model.m``` will save the generated surface roughness profile to a ```.mat``` file. Users can use the ```surfaceRoughnessFromFile.m``` script to then read in a previously generated surface roughness ```.mat``` file and scale the profile to generate new models. More specifically, users can generate multiple surface roughness profiles with the same geometry but for which the peak and valleys are only half as tall and deep, respectively, by setting ``` Factor = 0.5 ``` in this script. There are also scripts that will solely plot the generated surface roughness profiles for visualizations, e.g., ```plotSurfaceRoughness_full```.
+ The last part of ```add_surface_roughness_to_pristine_model.m``` will save the generated surface roughness profile to a ```.mat``` file. Users can use the ```surfaceRoughnessFromFile.m``` script to then read in a previously generated surface roughness ```.mat``` file and scale the profile to generate new models. For example, users can generate multiple surface roughness profiles with the same geometry but for which the peaks and valleys are only half as tall and deep, respectively, by setting ``` Factor = 0.5 ``` in this script. There are also scripts that will solely plot the generated surface roughness profiles for visualizations, e.g., ```plotSurfaceRoughness_full.m```.
 
 ## Generate notch geometry to overlay onto existing digital microstructure models
 
