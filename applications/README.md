@@ -9,19 +9,25 @@
   <B>Materials Commons data set:</B> https://doi.org/10.13011/m3-mhgc-ec71
 
 
+## Effects of grain size and grain shape
+  
+  <B>Reference</B>: A. Lakshmanan, M. Yaghoobi, K. S. Stopka, and V. Sundararaghavan. [Crystal plasticity finite element modeling of grain size and morphology effects on yield strength and extreme value fatigue response](https://doi.org/10.1016/j.jmrt.2022.06.075). <i>J. Mater. Res. Technol.</i>, <b>9</b>, 3337-3354 (2022).
+  
+  <B>Materials Commons data set:</B> https://doi.org/10.13011/m3-f90v-gs55
+
+
 ## Effects of sample size and grain neighborhood
   
   <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. [Simulated effects of sample size and grain neighborhood on the modeling of extreme value fatigue response](https://doi.org/10.1016/j.actamat.2021.117524). <i>Acta Mater.</i>, <b>224</b>, 117524 (2022).
   
   <B>Materials Commons data set:</B> https://doi.org/10.13011/m3-31wm-h036
   
-
-## Effects of grain size and grain shape
+## Effects of surface roughness and notches
   
-  <B>Reference</B>: A. Lakshmanan, M. Yaghoobi, K. S. Stopka, and V. Sundararaghavan. [Crystal plasticity finite element modeling of grain size and morphology effects on yield strength and extreme value fatigue response](https://doi.org/10.1016/j.jmrt.2022.06.075). <i>J. Mater. Res. Technol.</i>, <b>9</b>, 3337-3354 (2022).
+  <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. [Microstructure-sensitive modeling of surface roughness and notch effects on extreme value fatigue response](https://github.com/prisms-center/Fatigue/tree/main/applications). <i>Int. J. Fatigue</i>.
   
-  <B>Materials Commons data set:</B> https://doi.org/10.13011/m3-f90v-gs55
-  
+  <B>Materials Commons data set:</B> https://doi.org/10.13011/m3-gzaj-8566
+    
   ## Generate simple microstructure
   
   Scripts for users to generate simple microstructures using Python and DREAM.3D.
