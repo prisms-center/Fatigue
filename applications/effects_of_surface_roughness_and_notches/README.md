@@ -39,4 +39,4 @@
   
   The data set associated with this manuscript is available on Materials Commons at https://doi.org/10.13011/m3-gzaj-8566.
  
-  <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. [Microstructure-sensitive modeling of surface roughness and notch effects on extreme value fatigue response](https://github.com/prisms-center/Fatigue/tree/main/applications). <i>Int. J. Fatigue</i>.
+  <B>Reference:</B> K. S. Stopka, M. Yaghoobi, J. E. Allison, and D. L. McDowell. [Microstructure-sensitive modeling of surface roughness and notch effects on extreme value fatigue response](https://doi.org/10.1016/j.ijfatigue.2022.107295). <i>Int. J. Fatigue</i>, <b>166</b>, 107295 (2023).
