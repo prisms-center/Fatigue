@@ -26,6 +26,8 @@
 
   Variations of these scripts are available in the <B>applications</B> folder that are specific to certain manuscripts.
 
+![PRISMS_Fatigue_flowchart](PRISMS_Fatigue_flowchart.jpg)
+
 <B>Data sets:</B>
 
 The data set associated with the PRISMS-Fatigue manuscript is available for download from Materials Commons at: https://doi.org/10.13011/m3-rcyy-gx13. Other data sets are available in the <B>applications</B> folder.
